@@ -1,3 +1,4 @@
+import 'package:Ashvatth/screens/user_home.dart';
 import 'package:Ashvatth/widgets/top_logo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,9 @@ class RegistrationComplete extends StatelessWidget {
                         style: TextStyle(fontSize: 18, fontFamily: 'Laila'),
                       ),
                       onPressed: () {
+                        Navigator.of(context).push(
+                          CupertinoPageRoute(builder: (ctx) => UserHomeScreen()),
+                        );
                       },
                       padding: const EdgeInsets.symmetric(
                         horizontal: 50,
