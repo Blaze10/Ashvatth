@@ -8,8 +8,8 @@ class UserProfile extends StatefulWidget {
 
 class _UserProfileState extends State<UserProfile> {
   final List<String> profileTabList = [
-    'Info',
     'Tree',
+    'Info',
     'Contact',
     'Education',
     'Occupation',
@@ -49,11 +49,11 @@ class _UserProfileState extends State<UserProfile> {
               Expanded(
                 child: _educationTabContent(),
               ),
-               if (_selectedTab == 'Occupation')
+            if (_selectedTab == 'Occupation')
               Expanded(
                 child: _occupationTabContent(),
               ),
-                if (_selectedTab == 'Other')
+            if (_selectedTab == 'Other')
               Expanded(
                 child: _otherTabContent(),
               ),
@@ -68,8 +68,7 @@ class _UserProfileState extends State<UserProfile> {
     return Align(
       alignment: Alignment.topLeft,
       child: Padding(
-        padding: EdgeInsets.only(
-            top: MediaQuery.of(context).size.height * 0.05, left: 16),
+        padding: EdgeInsets.only(top: 0, left: 16),
         child: IconButton(
           icon: Icon(Icons.keyboard_backspace, size: 28),
           onPressed: () => Navigator.of(context).pop(),
@@ -99,8 +98,7 @@ class _UserProfileState extends State<UserProfile> {
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     image: DecorationImage(
-                      image: AssetImage(
-                          'assets/profile.png'),
+                      image: AssetImage('assets/profile.png'),
                       fit: BoxFit.fill,
                     )),
               ),
@@ -691,7 +689,7 @@ class _UserProfileState extends State<UserProfile> {
               ],
             ),
 
-             // Other details
+            // Other details
             TableRow(
               children: [
                 Padding(
@@ -724,7 +722,7 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
-   // Other tab
+  // Other tab
   Widget _otherTabContent() {
     return SingleChildScrollView(
       child: Padding(
@@ -822,5 +820,4 @@ class _UserProfileState extends State<UserProfile> {
       ),
     );
   }
-
 }
