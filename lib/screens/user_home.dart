@@ -1,3 +1,5 @@
+import 'package:Ashvatth/screens/user_profile.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class UserHomeScreen extends StatelessWidget {
@@ -27,8 +29,7 @@ class UserHomeScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           image: DecorationImage(
-                            image: NetworkImage(
-                                'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'),
+                            image: AssetImage('assets/profile.png'),
                             fit: BoxFit.fill,
                           ),
                         ),
@@ -82,7 +83,11 @@ class UserHomeScreen extends StatelessWidget {
                     size: 32,
                   ),
                   backgroundColor: Color(0xfff0cc8d),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(builder: (ctx) => UserProfile()),
+                    );
+                  },
                 ),
                 FloatingActionButton(
                   heroTag: 'mid',
