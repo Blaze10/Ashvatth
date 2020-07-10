@@ -1,4 +1,6 @@
+import 'package:Ashvatth/screens/user_info.dart';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class BottomSearch extends StatefulWidget {
@@ -24,6 +26,14 @@ class _BottomSearchState extends State<BottomSearch> {
     return Scaffold(
         resizeToAvoidBottomInset: false,
         key: _scaffoldKey,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              CupertinoPageRoute(builder: (ctx) => UserInfoFormPage()),
+            );
+          },
+          child: Icon(Icons.person),
+        ),
         body: Container(
           margin: EdgeInsets.all(8),
           child: Column(
@@ -87,13 +97,13 @@ class _BottomSearchState extends State<BottomSearch> {
                   child: AutoCompleteTextField<String>(
                     decoration: InputDecoration(
                         hintText: "Search relatives:",
-                        suffixIcon:  Icon(Icons.search)),
+                        suffixIcon: Icon(Icons.search)),
                     itemSubmitted: (item) => setState(() => selected = item),
                     key: key,
                     suggestions: suggestions,
-                    itemBuilder: (context, suggestion) =>  Padding(
-                        child:  ListTile(
-                          title:  Text(suggestion),
+                    itemBuilder: (context, suggestion) => Padding(
+                        child: ListTile(
+                          title: Text(suggestion),
                         ),
                         padding: EdgeInsets.all(8.0)),
                     itemSorter: (a, b) {
