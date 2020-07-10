@@ -1,4 +1,5 @@
 import 'package:Ashvatth/screens/user_profile.dart';
+import 'package:Ashvatth/widgets/bottomsearch.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -108,7 +109,17 @@ class UserHomeScreen extends StatelessWidget {
                     size: 32,
                   ),
                   backgroundColor: Color(0xfff0cc8d),
-                  onPressed: () {},
+                  onPressed: () {
+                    showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (context) {
+                          return Container(
+                            child: BottomSearch(),
+                            height: MediaQuery.of(context).size.height * .8,
+                          );
+                        });
+                  },
                 ),
               ],
             ),
