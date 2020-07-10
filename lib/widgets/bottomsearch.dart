@@ -87,13 +87,13 @@ class _BottomSearchState extends State<BottomSearch> {
                   child: AutoCompleteTextField<String>(
                     decoration: InputDecoration(
                         hintText: "Search relatives:",
-                        suffixIcon: new Icon(Icons.search)),
+                        suffixIcon:  Icon(Icons.search)),
                     itemSubmitted: (item) => setState(() => selected = item),
                     key: key,
                     suggestions: suggestions,
-                    itemBuilder: (context, suggestion) => new Padding(
-                        child: new ListTile(
-                          title: new Text(suggestion),
+                    itemBuilder: (context, suggestion) =>  Padding(
+                        child:  ListTile(
+                          title:  Text(suggestion),
                         ),
                         padding: EdgeInsets.all(8.0)),
                     itemSorter: (a, b) {
