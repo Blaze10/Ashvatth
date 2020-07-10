@@ -72,54 +72,63 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'First Name',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Middle Name',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Last Name',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Father\'s Name',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Mother\'s Name',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Mobile No.',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Place of Birth',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Notes',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Place of Birth',
+              controller: null,
             ),
           ),
           Padding(padding: const EdgeInsets.all(8.0), child: Text('Gender')),
@@ -194,30 +203,35 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Permanant Address',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Current Address',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Phone Number',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Mobile Number',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Personal Email ID',
+              controller: null,
             ),
           ),
           Padding(
@@ -271,24 +285,28 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Qualification',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'University',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'School',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Grant',
+              controller: null,
             ),
           ),
           Center(
@@ -325,24 +343,28 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Company Name',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Service line',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Office Email',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Other Details',
+              controller: null,
             ),
           ),
           Center(
@@ -379,24 +401,28 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Hobbies',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Personal Interest',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Special Awards',
+              controller: null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputFormField(
               labelText: 'Personal Interest & Involvement',
+              controller: null,
             ),
           ),
           Center(
