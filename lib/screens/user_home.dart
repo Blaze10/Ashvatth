@@ -12,45 +12,59 @@ class UserHomeScreen extends StatelessWidget {
         children: <Widget>[
           Center(
             child: Stack(
-              overflow: Overflow.visible,
+              // overflow: Overflow.visible,
+              // fit: StackFit.expand,
               children: <Widget>[
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Color(0xff8d6e52),
-                          )),
-                      child: Container(
-                        height: MediaQuery.of(context).size.height * 0.11,
-                        width: MediaQuery.of(context).size.height * 0.11,
+                SizedBox(
+                  width: double.maxFinite,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Container(
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: AssetImage('assets/profile.png'),
-                            fit: BoxFit.fill,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Color(0xff8d6e52),
+                            )),
+                        child: Container(
+                          height: MediaQuery.of(context).size.height * 0.11,
+                          width: MediaQuery.of(context).size.height * 0.11,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: AssetImage('assets/profile.png'),
+                              fit: BoxFit.fill,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Text('Raaj',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headline1
-                            .copyWith(fontWeight: FontWeight.w700))
-                  ],
+                      Text('Raaj',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline1
+                              .copyWith(fontWeight: FontWeight.w700))
+                    ],
+                  ),
                 ),
                 Positioned(
                   top: 16,
-                  left: (MediaQuery.of(context).size.height * 0.11) + 16 + 50,
+                  right: (MediaQuery.of(context).size.height * 0.11) - 50,
                   child: Container(
                     height: MediaQuery.of(context).size.height * 0.07,
                     width: MediaQuery.of(context).size.height * 0.07,
                     child: FloatingActionButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (context) {
+                              return Container(
+                                child: BottomSearch(),
+                                height: MediaQuery.of(context).size.height * .8,
+                              );
+                            });
+                      },
                       child: Icon(Icons.add, color: Colors.white),
                       backgroundColor: Color(0xffab4612),
                     ),
@@ -58,7 +72,7 @@ class UserHomeScreen extends StatelessWidget {
                 ),
                 Positioned(
                   top: (MediaQuery.of(context).size.height * 0.11) / 2,
-                  left: (MediaQuery.of(context).size.height * 0.11) + 16,
+                  right: (MediaQuery.of(context).size.height * 0.11),
                   child: Container(
                     width: 50,
                     height: 2,
@@ -109,17 +123,7 @@ class UserHomeScreen extends StatelessWidget {
                     size: 32,
                   ),
                   backgroundColor: Color(0xfff0cc8d),
-                  onPressed: () {
-                    showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        builder: (context) {
-                          return Container(
-                            child: BottomSearch(),
-                            height: MediaQuery.of(context).size.height * .8,
-                          );
-                        });
-                  },
+                  onPressed: () {},
                 ),
               ],
             ),
