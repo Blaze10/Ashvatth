@@ -1,11 +1,14 @@
+import 'package:Ashvatth/Providers/onboarding_provider.dart';
 import 'package:Ashvatth/screens/user_home.dart';
 import 'package:Ashvatth/widgets/top_logo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class RegistrationComplete extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var provider = Provider.of<OnboardingProvier>(context, listen: false);
     return WillPopScope(
       onWillPop: () async => false,
       child: SafeArea(
@@ -26,10 +29,18 @@ class RegistrationComplete extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(
-                        'Great! Welcome \nRaj Jones',
-                        style: Theme.of(context).textTheme.headline1,
-                      ),
+                      if (provider.firstName != null &&
+                          provider.lastName != null)
+                        Text(
+                          'Great! Welcome \n${provider.firstName} ${provider.lastName}',
+                          style: Theme.of(context).textTheme.headline1,
+                        ),
+                      if (provider.firstName == null ||
+                          provider.lastName == null)
+                        Text(
+                          'Great! Welcome',
+                          style: Theme.of(context).textTheme.headline1,
+                        ),
                       SizedBox(height: 8),
                       Text(
                         'Ashvatth will help you map \nyour family tree and explore \nyour family branch in this \nworld family.',
@@ -48,7 +59,8 @@ class RegistrationComplete extends StatelessWidget {
                       ),
                       onPressed: () {
                         Navigator.of(context).push(
-                          CupertinoPageRoute(builder: (ctx) => UserHomeScreen()),
+                          CupertinoPageRoute(
+                              builder: (ctx) => UserHomeScreen()),
                         );
                       },
                       padding: const EdgeInsets.symmetric(
