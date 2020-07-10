@@ -1,10 +1,14 @@
 import 'package:Ashvatth/screens/user_profile.dart';
+import 'package:Ashvatth/services/user_service.dart';
 import 'package:Ashvatth/widgets/bottomsearch.dart';
 import 'package:Ashvatth/widgets/tree.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class UserHomeScreen extends StatelessWidget {
+  final userDataFuture = UserService().getCurrentUserData();
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -13,45 +17,73 @@ class UserHomeScreen extends StatelessWidget {
         children: <Widget>[
           Center(
             child: Stack(
-              overflow: Overflow.visible,
+              // overflow: Overflow.visible,
               children: <Widget>[
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Color(0xff8d6e52),
-                          )),
-                      child: Container(
-                        height: MediaQuery.of(context).size.height * 0.11,
-                        width: MediaQuery.of(context).size.height * 0.11,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: AssetImage('assets/profile.png'),
-                            fit: BoxFit.fill,
-                          ),
+                FutureBuilder<dynamic>(
+                    future: userDataFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      }
+                      if (snapshot.hasError) {
+                        return Text('Some error occured, Please try again');
+                      }
+                      return SizedBox(
+                        width: double.maxFinite,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Color(0xff8d6e52),
+                                  )),
+                              child: Container(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.11,
+                                width:
+                                    MediaQuery.of(context).size.height * 0.11,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                    image: CachedNetworkImageProvider(
+                                        snapshot.data['profileImageUrl']),
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(snapshot.data['firstName'],
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline1
+                                    .copyWith(fontWeight: FontWeight.w700))
+                          ],
                         ),
-                      ),
-                    ),
-                    Text('Raaj',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headline1
-                            .copyWith(fontWeight: FontWeight.w700))
-                  ],
-                ),
+                      );
+                    }),
                 Positioned(
                   top: 16,
-                  left: (MediaQuery.of(context).size.height * 0.11) + 16 + 50,
+                  right: (MediaQuery.of(context).size.height * 0.11) - 50,
                   child: Container(
                     height: MediaQuery.of(context).size.height * 0.07,
                     width: MediaQuery.of(context).size.height * 0.07,
                     child: FloatingActionButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (context) {
+                              return Container(
+                                child: BottomSearch(
+                                  ctx: context,
+                                ),
+                                height: MediaQuery.of(context).size.height * .8,
+                              );
+                            });
+                      },
                       child: Icon(Icons.add, color: Colors.white),
                       backgroundColor: Color(0xffab4612),
                     ),
@@ -59,7 +91,7 @@ class UserHomeScreen extends StatelessWidget {
                 ),
                 Positioned(
                   top: (MediaQuery.of(context).size.height * 0.11) / 2,
-                  left: (MediaQuery.of(context).size.height * 0.11) + 16,
+                  right: (MediaQuery.of(context).size.height * 0.11),
                   child: Container(
                     width: 50,
                     height: 2,

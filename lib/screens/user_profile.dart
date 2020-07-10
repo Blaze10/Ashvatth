@@ -1,3 +1,5 @@
+import 'package:Ashvatth/services/user_service.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -6,7 +8,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 class UserProfile extends StatefulWidget {
@@ -15,6 +16,7 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
+  var userDataFuture = UserService().getCurrentUserData();
   final List<String> profileTabList = [
     'Tree',
     'Info',
@@ -31,48 +33,69 @@ class _UserProfileState extends State<UserProfile> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: Column(
-          children: <Widget>[
-            _backbutton(),
-            _profileImage(),
-            _tabList(),
-            SizedBox(height: 8),
-            Divider(
-              color: Color(0xff8d6e52),
-              thickness: 1,
-            ),
-            if (_selectedTab == 'Info')
-              Expanded(
-                child: _infoTabContent(),
-              ),
-            if (_selectedTab == 'Tree')
-              Expanded(
-                child: _treeTabContent(),
-              ),
-            if (_selectedTab == 'Contact')
-              Expanded(
-                child: _contactTabContent(),
-              ),
-            if (_selectedTab == 'Education')
-              Expanded(
-                child: _educationTabContent(),
-              ),
-            if (_selectedTab == 'Occupation')
-              Expanded(
-                child: _occupationTabContent(),
-              ),
-            if (_selectedTab == 'Other')
-              Expanded(
-                child: _otherTabContent(),
-              ),
-          ],
-        ),
+        body: FutureBuilder<dynamic>(
+            future: userDataFuture,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text('Some error occured, try again later'),
+                );
+              }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              return Column(
+                children: <Widget>[
+                  _backbutton(
+                    snapshot.data['firstName'],
+                    snapshot.data['lastName'],
+                  ),
+                  _profileImage(
+                    snapshot.data['profileImageUrl'],
+                    snapshot.data['firstName'],
+                    snapshot.data['lastName'],
+                  ),
+                  _tabList(),
+                  SizedBox(height: 8),
+                  Divider(
+                    color: Color(0xff8d6e52),
+                    thickness: 1,
+                  ),
+                  if (_selectedTab == 'Info')
+                    Expanded(
+                      child: _infoTabContent(),
+                    ),
+                  if (_selectedTab == 'Tree')
+                    Expanded(
+                      child: _treeTabContent(),
+                    ),
+                  if (_selectedTab == 'Contact')
+                    Expanded(
+                      child: _contactTabContent(),
+                    ),
+                  if (_selectedTab == 'Education')
+                    Expanded(
+                      child: _educationTabContent(),
+                    ),
+                  if (_selectedTab == 'Occupation')
+                    Expanded(
+                      child: _occupationTabContent(),
+                    ),
+                  if (_selectedTab == 'Other')
+                    Expanded(
+                      child: _otherTabContent(),
+                    ),
+                ],
+              );
+            }),
       ),
     );
   }
 
   // back button
-  Widget _backbutton() {
+  Widget _backbutton(String firstName, String lastName) {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       Padding(
         padding: EdgeInsets.only(top: 0, left: 16),
@@ -112,7 +135,7 @@ class _UserProfileState extends State<UserProfile> {
                               ),
                             ),
                           ),
-                          Text('Raaj Jones',
+                          Text('$firstName $lastName',
                               style: Theme.of(context)
                                   .textTheme
                                   .headline1
@@ -137,7 +160,7 @@ class _UserProfileState extends State<UserProfile> {
   }
 
   // top image
-  Widget _profileImage() {
+  Widget _profileImage(String imageUrl, String firstName, String lastName) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Center(
@@ -156,14 +179,14 @@ class _UserProfileState extends State<UserProfile> {
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     image: DecorationImage(
-                      image: AssetImage('assets/profile.png'),
+                      image: CachedNetworkImageProvider(imageUrl),
                       fit: BoxFit.fill,
                     )),
               ),
             ),
             SizedBox(height: 8),
             Text(
-              'Raaj Jones',
+              '$firstName $lastName',
               style: Theme.of(context)
                   .textTheme
                   .headline1
