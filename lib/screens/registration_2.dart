@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:Ashvatth/Providers/onboarding_provider.dart';
 import 'package:Ashvatth/pickers/image_picker.dart';
 import 'package:Ashvatth/screens/registration_3.dart';
 import 'package:Ashvatth/widgets/top_logo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Registration2 extends StatefulWidget {
   @override
@@ -12,13 +14,16 @@ class Registration2 extends StatefulWidget {
 }
 
 class _Registration2State extends State<Registration2> {
-
   File userImageFile;
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
+    var provider = Provider.of<OnboardingProvier>(context, listen: false);
+    print(provider.firstName);
     return SafeArea(
       child: Scaffold(
+        key: scaffoldKey,
         resizeToAvoidBottomInset: false,
         body: Padding(
           padding:
@@ -42,7 +47,7 @@ class _Registration2State extends State<Registration2> {
               ),
               SizedBox(height: 10),
               Text(
-                'Raj, Your connections accross the',
+                '${provider.firstName}, Your connections accross the',
                 style: Theme.of(context)
                     .textTheme
                     .headline1
@@ -82,8 +87,18 @@ class _Registration2State extends State<Registration2> {
                           style: TextStyle(fontSize: 18, fontFamily: 'Laila'),
                         ),
                         onPressed: () {
-                          Navigator.of(context).push(CupertinoPageRoute(
-                              builder: (ctx) => Registration3()));
+                          if (userImageFile == null) {
+                            scaffoldKey.currentState.showSnackBar(
+                              SnackBar(
+                                content: Text('Picture is required'),
+                                backgroundColor: Theme.of(context).errorColor,
+                              ),
+                            );
+                          } else {
+                            provider.setProfileImageFile(userImageFile);
+                            Navigator.of(context).push(CupertinoPageRoute(
+                                builder: (ctx) => Registration3()));
+                          }
                         },
                         padding: const EdgeInsets.symmetric(
                           horizontal: 50,

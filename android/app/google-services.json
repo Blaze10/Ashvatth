@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "514195378218",
+    "firebase_url": "https://ashvathh-53ab3.firebaseio.com",
+    "project_id": "ashvathh-53ab3",
+    "storage_bucket": "ashvathh-53ab3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:514195378218:android:99a171150801a9e736b353",
+        "android_client_info": {
+          "package_name": "com.example.Ashvatth"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "514195378218-7qdheglfujvuj5c25c62r6k4c0nvtrns.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.Ashvatth",
+            "certificate_hash": "147a1c35e698c9913d7488292fb32bf80edae1cc"
+          }
+        },
+        {
+          "client_id": "514195378218-4v4r0p3q235o0knu69r5m1vfavshbp2o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8orkDE71ZW04JUZpQAjDEmU57pvo61fY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "514195378218-4v4r0p3q235o0knu69r5m1vfavshbp2o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

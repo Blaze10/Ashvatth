@@ -1,7 +1,9 @@
+import 'package:Ashvatth/Providers/onboarding_provider.dart';
 import 'package:Ashvatth/screens/registration_4.dart';
 import 'package:Ashvatth/widgets/top_logo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Registration3 extends StatefulWidget {
   @override
@@ -13,6 +15,7 @@ class _Registration3State extends State<Registration3> {
 
   @override
   Widget build(BuildContext context) {
+    var provider = Provider.of<OnboardingProvier>(context, listen: false);
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -119,6 +122,7 @@ class _Registration3State extends State<Registration3> {
                           style: TextStyle(fontSize: 18, fontFamily: 'Laila'),
                         ),
                         onPressed: () {
+                          provider.setIsMarried(isMarried);
                           Navigator.of(context).push(CupertinoPageRoute(
                               builder: (ctx) => Registration4()));
                         },

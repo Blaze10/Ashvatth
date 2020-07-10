@@ -44,8 +44,8 @@ class _BottomSearchState extends State<BottomSearch> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         image: DecorationImage(
-                          image: NetworkImage(
-                              'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'),
+                          image: AssetImage(
+                              'assets/profile.png'),
                           fit: BoxFit.cover,
                         ),
                       ),
