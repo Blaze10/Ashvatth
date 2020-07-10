@@ -1,5 +1,13 @@
+import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+
+import 'dart:async';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 class UserProfile extends StatefulWidget {
   @override
@@ -65,9 +73,8 @@ class _UserProfileState extends State<UserProfile> {
 
   // back button
   Widget _backbutton() {
-    return Align(
-      alignment: Alignment.topLeft,
-      child: Padding(
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      Padding(
         padding: EdgeInsets.only(top: 0, left: 16),
         child: IconButton(
           icon: Icon(Icons.keyboard_backspace, size: 28),
@@ -75,7 +82,58 @@ class _UserProfileState extends State<UserProfile> {
           color: Color(0xff8d6e52),
         ),
       ),
-    );
+      IconButton(
+        icon: Icon(FontAwesomeIcons.qrcode, size: 28),
+        onPressed: () {
+          final key = encrypt.Key.fromLength(32);
+          final iv = encrypt.IV.fromLength(8);
+          final encrypter = encrypt.Encrypter(encrypt.Salsa20(key));
+
+          final encrypted = encrypter.encrypt('plainText', iv: iv);
+          // final decrypted = encrypter.decrypt(encrypted, iv: iv);
+          showDialog(
+              context: context,
+              builder: (context) {
+                return Dialog(
+                  child: FittedBox(
+                    child: Container(
+                      margin: EdgeInsets.all(8),
+                      child: Column(
+                        children: [
+                          CustomPaint(
+                            size: Size.square(280),
+                            painter: QrPainter(
+                              data: encrypted.base64,
+                              version: QrVersions.auto,
+                              // size: 320.0,
+                              color: Colors.brown,
+                              embeddedImageStyle: QrEmbeddedImageStyle(
+                                size: Size.square(60),
+                              ),
+                            ),
+                          ),
+                          Text('Raaj Jones',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline1
+                                  .copyWith(fontSize: 21)),
+                          Text(
+                            'Scan this QR code to send relationship request',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyText1
+                                .copyWith(fontSize: 18),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              });
+        },
+        color: Color(0xff8d6e52),
+      ),
+    ]);
   }
 
   // top image
@@ -819,5 +877,12 @@ class _UserProfileState extends State<UserProfile> {
         ),
       ),
     );
+  }
+
+  Future<ui.Image> _loadOverlayImage() async {
+    final completer = Completer<ui.Image>();
+    final byteData = await rootBundle.load('assets/logo2.png');
+    ui.decodeImageFromList(byteData.buffer.asUint8List(), completer.complete);
+    return completer.future;
   }
 }

@@ -1,5 +1,6 @@
 import 'package:Ashvatth/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(MyApp());
@@ -9,6 +10,12 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.white,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
     return MaterialApp(
       title: 'Ashvatth',
       debugShowCheckedModeBanner: false,
@@ -18,12 +25,12 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Rajdhani',
         textTheme: TextTheme(
           headline1: TextStyle(
-            color:  Color(0xff341C10),
+            color: Color(0xff341C10),
             fontFamily: 'Laila',
             fontSize: 24,
           ),
           subtitle1: TextStyle(
-            color:  Color(0xff341C10),
+            color: Color(0xff341C10),
             fontSize: 20,
           ),
         ),
