@@ -5,6 +5,7 @@ import 'package:Ashvatth/widgets/tree.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class UserHomeScreen extends StatelessWidget {
   final userDataFuture = UserService().getCurrentUserData();
@@ -137,9 +138,9 @@ class UserHomeScreen extends StatelessWidget {
                   heroTag: 'right',
                   mini: true,
                   child: Icon(
-                    Icons.crop_free,
+                    FontAwesomeIcons.tree,
                     color: Theme.of(context).accentColor,
-                    size: 32,
+                    size: 30,
                   ),
                   backgroundColor: Color(0xfff0cc8d),
                   onPressed: () {

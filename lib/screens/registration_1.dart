@@ -77,6 +77,7 @@ class _Registration1State extends State<Registration1> {
                                 labelText: 'First Name',
                                 controller: _firstNameController,
                                 isRequired: true,
+                                keyboardType: TextInputType.text,
                               ),
                               SizedBox(height: 16),
                               InputFormField(

@@ -23,6 +23,7 @@ class InputFormField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      textCapitalization: TextCapitalization.sentences,
       controller: controller,
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.only(left: 28, top: 14, bottom: 14),

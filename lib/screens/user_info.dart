@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 
 class UserInfoFormPage extends StatefulWidget {
   static const routeName = 'userInfoFormPage';
+  final String relationship;
+
+  UserInfoFormPage({@required this.relationship});
 
   @override
   _UserInfoFormPageState createState() => _UserInfoFormPageState();
@@ -11,11 +14,11 @@ class UserInfoFormPage extends StatefulWidget {
 class _UserInfoFormPageState extends State<UserInfoFormPage>
     with TickerProviderStateMixin {
   List<String> tabs = [
-    "info",
-    "contact",
-    "education",
-    "occupation",
-    "other",
+    "Info",
+    "Contact",
+    "Education",
+    "Occupation",
+    "Other",
   ];
   TabController tabController;
   @override
@@ -23,8 +26,9 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
     tabController = TabController(length: tabs.length, vsync: this);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Add new relative'),
+        title: Text('Add ${widget.relationship}'),
       ),
       body: SafeArea(
         child: Column(
@@ -52,7 +56,11 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
                 unselectedLabelColor: Colors.grey,
                 tabs: tabs
                     .map((name) => new Tab(
-                          child: Text(name),
+                          child: Text(
+                            name,
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w600),
+                          ),
                         ))
                     .toList(),
               ),

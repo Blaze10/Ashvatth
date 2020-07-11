@@ -258,7 +258,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Birth date:',
+                    'Birth date',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -285,7 +285,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Age:',
+                    'Age',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -312,7 +312,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Notes:',
+                    'Notes',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -368,7 +368,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Permanent Address:',
+                    'Permanent Address',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -396,7 +396,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Current Address:',
+                    'Current Address',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -424,7 +424,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Phone No:',
+                    'Phone No',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -454,7 +454,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Mobile No:',
+                    'Mobile No',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -484,7 +484,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Email:',
+                    'Email',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -532,7 +532,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Qualification:',
+                    'Qualification',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -560,7 +560,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'University:',
+                    'University',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -588,7 +588,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'School:',
+                    'School',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -662,7 +662,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Company Name:',
+                    'Company Name',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -690,7 +690,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Service Line:',
+                    'Service Line',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -718,7 +718,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Contact:',
+                    'Contact',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -875,7 +875,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'About:',
+                    'About',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
