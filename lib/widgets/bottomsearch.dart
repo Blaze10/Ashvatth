@@ -40,7 +40,13 @@ class _BottomSearchState extends State<BottomSearch> {
                             )),
                   );
                 }
-              : null,
+              : () {
+                  _scaffoldKey.currentState.hideCurrentSnackBar();
+                  _scaffoldKey.currentState.showSnackBar(SnackBar(
+                    content: Text('Select a Relationship first'),
+                    backgroundColor: Theme.of(context).errorColor,
+                  ));
+                },
           child: Icon(Icons.person),
         ),
         body: FutureBuilder<dynamic>(
