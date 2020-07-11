@@ -1,4 +1,5 @@
 import 'package:Ashvatth/screens/user_info.dart';
+import 'package:Ashvatth/screens/user_profile.dart';
 import 'package:Ashvatth/services/user_service.dart';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -19,10 +20,29 @@ class _BottomSearchState extends State<BottomSearch> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final userDataFuture = UserService().getCurrentUserData();
   String _selectedRelation;
+  List<String> _userSuggesstionNameList = List<String>();
 
   @override
   void initState() {
     super.initState();
+    Future.delayed(Duration.zero, () {
+      UserService().getUsernameList().then((list) {
+        if (list == null || list.length <= 0) {
+          return;
+        }
+        _userSuggesstionNameList = [];
+        setState(() {
+          list.forEach((element) {
+            _userSuggesstionNameList.add(element['username']);
+          });
+        });
+      }).catchError((err) {
+        print(err.toString());
+        setState(() {
+          _userSuggesstionNameList = [];
+        });
+      });
+    });
   }
 
   @override
@@ -128,10 +148,13 @@ class _BottomSearchState extends State<BottomSearch> {
                           decoration: InputDecoration(
                               hintText: "Search relatives:",
                               suffixIcon: Icon(Icons.search)),
-                          itemSubmitted: (item) =>
-                              setState(() => selected = item),
+                          itemSubmitted: (item) {
+                            Navigator.of(context).push(CupertinoPageRoute(
+                                builder: (ctx) => UserProfile(
+                                    username: item.trim().toLowerCase())));
+                          },
                           key: key,
-                          suggestions: suggestions,
+                          suggestions: _userSuggesstionNameList,
                           itemBuilder: (context, suggestion) => Padding(
                               child: ListTile(
                                 title: Text(suggestion),
@@ -140,9 +163,17 @@ class _BottomSearchState extends State<BottomSearch> {
                           itemSorter: (a, b) {
                             return a.compareTo(b);
                           },
-                          itemFilter: (suggestion, input) => suggestion
-                              .toLowerCase()
-                              .startsWith(input.toLowerCase()),
+                          itemFilter: (suggestion, input) {
+                            if (!_userSuggesstionNameList.any((item) =>
+                                item.trim().toLowerCase() ==
+                                input.trim().toLowerCase())) {
+                              return false;
+                            }
+
+                            return suggestion
+                                .toLowerCase()
+                                .startsWith(input.toLowerCase());
+                          },
                         ),
                       ),
                     )

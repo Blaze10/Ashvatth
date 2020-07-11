@@ -11,6 +11,10 @@ import 'dart:async';
 import 'dart:ui' as ui;
 
 class UserProfile extends StatefulWidget {
+  final String username;
+
+  UserProfile({this.username});
+
   @override
   _UserProfileState createState() => _UserProfileState();
 }
@@ -28,6 +32,14 @@ class _UserProfileState extends State<UserProfile> {
   ];
 
   String _selectedTab = 'Info';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.username != null) {
+      userDataFuture = UserService().getUserByUsername(widget.username);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
