@@ -1,3 +1,4 @@
+import 'package:Ashvatth/screens/user_info.dart';
 import 'package:Ashvatth/screens/user_profile.dart';
 import 'package:Ashvatth/services/user_service.dart';
 import 'package:Ashvatth/widgets/bottomsearch.dart';
@@ -97,15 +98,24 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                             showModalBottomSheet(
                                 context: context,
                                 isScrollControlled: true,
-                                builder: (context) {
+                                builder: (ctx) {
                                   return Container(
                                     child: BottomSearch(
-                                      ctx: context,
+                                      ctx: ctx,
                                     ),
                                     height:
                                         MediaQuery.of(context).size.height * .8,
                                   );
-                                });
+                                }).then((res) {
+                              if (res != null && res.runtimeType == String) {
+                                Navigator.of(context).push(
+                                  CupertinoPageRoute(
+                                    builder: (ctx) =>
+                                        UserInfoFormPage(relationship: res),
+                                  ),
+                                );
+                              }
+                            });
                           },
                           child: Icon(Icons.add, color: Colors.white),
                           backgroundColor: Color(0xffab4612),

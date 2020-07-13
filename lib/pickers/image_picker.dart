@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class UserImagePicker extends StatefulWidget {
-  UserImagePicker(this.imagePickedFn);
-
+  UserImagePicker({this.imagePickedFn, this.displayImage});
+  final Widget displayImage;
   final void Function(File pickedImage) imagePickedFn;
 
   @override
@@ -80,19 +80,21 @@ class _UserImagePickerState extends State<UserImagePicker> {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        Container(
-          width: MediaQuery.of(context).size.height * 0.26,
-          height: MediaQuery.of(context).size.height * 0.26,
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xfff0cc8d),
-              image: _pickedImage != null
-                  ? DecorationImage(
-                      image: FileImage(_pickedImage),
-                      fit: BoxFit.fill,
-                    )
-                  : null),
-        ),
+        if (widget.displayImage == null)
+          Container(
+            width: MediaQuery.of(context).size.height * 0.26,
+            height: MediaQuery.of(context).size.height * 0.26,
+            decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0xfff0cc8d),
+                image: _pickedImage != null
+                    ? DecorationImage(
+                        image: FileImage(_pickedImage),
+                        fit: BoxFit.fill,
+                      )
+                    : null),
+          ),
+        if (widget.displayImage != null) widget.displayImage,
         Positioned(
           bottom: 10,
           right: 10,

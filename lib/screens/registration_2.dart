@@ -79,7 +79,7 @@ class _Registration2State extends State<Registration2> {
                         padding: EdgeInsets.symmetric(
                             horizontal:
                                 MediaQuery.of(context).size.width * 0.08),
-                        child: UserImagePicker(_pickedImage),
+                        child: UserImagePicker(imagePickedFn: _pickedImage),
                       ),
                       RaisedButton(
                         child: Text(

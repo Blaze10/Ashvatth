@@ -1,8 +1,10 @@
 import 'package:Ashvatth/screens/user_info.dart';
 import 'package:Ashvatth/screens/user_profile.dart';
 import 'package:Ashvatth/services/user_service.dart';
+import 'package:Ashvatth/widgets/notification_card.dart';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -21,6 +23,19 @@ class _BottomSearchState extends State<BottomSearch> {
   final userDataFuture = UserService().getCurrentUserData();
   String _selectedRelation;
   List<String> _userSuggesstionNameList = List<String>();
+  List<String> availableRalations = [
+    "Grandfather",
+    "Grandmother",
+    "Father",
+    "Mother",
+    "Brother",
+    "Sister",
+    "Wife",
+    "Son",
+    "Daughter",
+  ];
+
+  var addedMembersFuture = UserService().getAddedRelations();
 
   @override
   void initState() {
@@ -42,6 +57,15 @@ class _BottomSearchState extends State<BottomSearch> {
           _userSuggesstionNameList = [];
         });
       });
+
+      // remove relations which are already submitted
+      UserService().checkRelation(availableRalations).then((value) {
+        setState(() {
+          availableRalations = value;
+        });
+      }).catchError((err) {
+        print(err.toString());
+      });
     });
   }
 
@@ -53,12 +77,13 @@ class _BottomSearchState extends State<BottomSearch> {
         floatingActionButton: FloatingActionButton(
           onPressed: _selectedRelation != null
               ? () {
-                  Navigator.of(context).push(
-                    CupertinoPageRoute(
-                        builder: (ctx) => UserInfoFormPage(
-                              relationship: _selectedRelation,
-                            )),
-                  );
+                  // Navigator.of(widget.ctx).push(
+                  //   CupertinoPageRoute(
+                  //       builder: (ctx) => UserInfoFormPage(
+                  //             relationship: _selectedRelation,
+                  //           )),
+                  // );
+                  Navigator.of(context).pop(_selectedRelation);
                 }
               : () {
                   _scaffoldKey.currentState.hideCurrentSnackBar();
@@ -115,16 +140,7 @@ class _BottomSearchState extends State<BottomSearch> {
                               DropdownButton<String>(
                                 value: _selectedRelation,
                                 hint: Text('Relationship'),
-                                items: <String>[
-                                  "Grandfather",
-                                  "Grandmother",
-                                  "Father",
-                                  "Mother",
-                                  "Brother",
-                                  "Sister",
-                                  "Son",
-                                  "Daughter",
-                                ].map((String value) {
+                                items: availableRalations.map((String value) {
                                   return DropdownMenuItem<String>(
                                     value: value,
                                     child: Text(value),
@@ -176,6 +192,62 @@ class _BottomSearchState extends State<BottomSearch> {
                           },
                         ),
                       ),
+                    ),
+                    Divider(
+                      color: Theme.of(context).accentColor,
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: FutureBuilder(
+                            future: addedMembersFuture,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasError) {
+                                print(snapshot.error.toString());
+                                return Center(
+                                  child: Text(
+                                      'Some error occured, please try again later'),
+                                );
+                              }
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+                              List<Map<String, dynamic>> list = snapshot.data;
+
+                              return (list != null && list.length > 0)
+                                  ? ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: list.length,
+                                      itemBuilder: (ctx, i) {
+                                        return NotificationCard(
+                                          imageUrl: list[i]['profileImageUrl'],
+                                          mainText: list[i]['relation'],
+                                          middleText: 'Added by you',
+                                          onConfirm: () {
+                                            _onViewAddedMember(
+                                              list[i]['relation'],
+                                            );
+                                          },
+                                          username: list[i]['firstName'] +
+                                              ' ' +
+                                              list[i]['lastName'],
+                                          confirmBtnText: 'View',
+                                        );
+                                      },
+                                    )
+                                  : Center(
+                                      child: Text(
+                                        'No members added',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline1,
+                                      ),
+                                    );
+                            }),
+                      ),
                     )
                   ],
                 ),
@@ -215,5 +287,14 @@ class _BottomSearchState extends State<BottomSearch> {
     setState(() {
       showLoader = value;
     });
+  }
+
+  // on view added member
+  _onViewAddedMember(String relation) {
+    Navigator.of(widget.ctx).push(CupertinoPageRoute(
+        builder: (ctx) => UserInfoFormPage(
+              relationship: relation,
+              isEdit: true,
+            )));
   }
 }

@@ -9,6 +9,10 @@ class InputFormField extends StatelessWidget {
   final bool isRequired;
   final Function validatorFunction;
   final bool isDisabled;
+  final Widget suffixWidget;
+  final Function onTapFunction;
+  final bool isDate;
+  final bool isMultiline;
 
   InputFormField({
     @required this.labelText,
@@ -18,6 +22,10 @@ class InputFormField extends StatelessWidget {
     this.isRequired = false,
     this.validatorFunction,
     this.isDisabled = false,
+    this.suffixWidget,
+    this.onTapFunction,
+    this.isDate = false,
+    this.isMultiline = false,
   });
 
   @override
@@ -42,10 +50,14 @@ class InputFormField extends StatelessWidget {
         labelText: labelText,
         labelStyle: TextStyle(color: Theme.of(context).primaryColor),
         hintText: hintText,
+        suffixIcon: suffixWidget,
       ),
       style: TextStyle(color: Theme.of(context).primaryColor),
       keyboardType: this.keyboardType,
       readOnly: isDisabled,
+      onTap: !isDate ? null : onTapFunction,
+      minLines: isMultiline ? 3 : 1,
+      maxLines: isMultiline ? 3 : 1,
       validator: validatorFunction != null
           ? validatorFunction
           : (value) {

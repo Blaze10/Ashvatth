@@ -43,4 +43,69 @@ class UserService {
       return null;
     }
   }
+
+  // get relations
+  Future<List<String>> checkRelation(List<String> relations) async {
+    try {
+      String userId = (await FirebaseAuth.instance.currentUser()).uid;
+
+      // var userData = (await _db.document('users/$userId').get()).data;
+
+      // if (userData['isMarried'] != null && !userData['isMarried']) {
+      //   relations.removeWhere(
+      //       (item) => (item == 'Wife' || item == 'Son' || item == 'Daughter'));
+      // }
+
+      List<String> list = List<String>();
+
+      relations.forEach((el) async {
+        if (el == "Grandfather" ||
+            el == "Grandmother" ||
+            el == "Father" ||
+            el == "Mother") {
+          var ref =
+              (await _db.document('users/$userId/addedMembers/$el').get());
+          if (!ref.exists) {
+            list.add(el);
+          }
+        } else {
+          var userData = (await _db.document('users/$userId').get()).data;
+          if ((el == 'Son' || el == 'Daughter' || el == 'Wife')) {
+            if (userData['isMarried'] != null && userData['isMarried']) {
+              list.add(el);
+            }
+          } else {
+            list.add(el);
+          }
+        }
+      });
+
+      print(list.toString());
+      return list;
+    } catch (err) {
+      print(err.toString());
+      return null;
+    }
+  }
+
+  // ****** get added relations ******
+  Future<List<Map<String, dynamic>>> getAddedRelations() async {
+    try {
+      var userId = (await FirebaseAuth.instance.currentUser()).uid;
+      var addedMemberCollectionRef =
+          (await _db.collection('users/$userId/addedMembers').getDocuments());
+
+      var list = addedMemberCollectionRef.documents
+          .map((doc) => {
+                "id": doc.documentID,
+                ...doc.data,
+              })
+          .toList();
+
+      return list;
+    } catch (err) {
+      print(err.toString());
+      return null;
+    }
+  }
 }
