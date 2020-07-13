@@ -757,6 +757,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
           var storageRef = FirebaseStorage.instance
               .ref()
               .child('added-members')
+              .child(userId)
               .child(widget.relationship + '.jpg');
           await storageRef.putFile(profileImage).onComplete;
           profileImageUrl = await storageRef.getDownloadURL();

@@ -20,6 +20,7 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
+  var _userService = UserService();
   var userDataFuture = UserService().getCurrentUserData();
   final List<String> profileTabList = [
     'Tree',
@@ -59,6 +60,7 @@ class _UserProfileState extends State<UserProfile> {
                 );
               }
               return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   _backbutton(
                     snapshot.data['firstName'],
@@ -81,7 +83,9 @@ class _UserProfileState extends State<UserProfile> {
                     ),
                   if (_selectedTab == 'Tree')
                     Expanded(
-                      child: _treeTabContent(),
+                      child: _treeTabContent(
+                          userId: snapshot.data['id'],
+                          isMarried: snapshot.data['isMarried']),
                     ),
                   if (_selectedTab == 'Contact')
                     Expanded(
@@ -352,13 +356,90 @@ class _UserProfileState extends State<UserProfile> {
   }
 
   // tree tab
-  Widget _treeTabContent() {
-    return Center(
-        child: Text(
-      '🌱 \nComming soon!',
-      style: Theme.of(context).textTheme.headline1,
-      textAlign: TextAlign.center,
-    ));
+  Widget _treeTabContent({@required String userId, bool isMarried = false}) {
+    print('UserId: $userId');
+    return Stack(
+      children: <Widget>[
+        Positioned(
+          top: 48,
+          left: (MediaQuery.of(context).size.width / 2),
+          child: Container(
+            height: isMarried ? 190 : 90,
+            width: 2,
+            color: Theme.of(context).accentColor,
+          ),
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(height: 10),
+            Center(
+              child: FutureBuilder<List<dynamic>>(
+                future: _userService.getUserParentRelations(userId: userId),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    print(snapshot.error.toString());
+                    return Center(
+                      child: Text('Some error occured, Please try again later'),
+                    );
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  List<dynamic> list = snapshot.data;
+                  return (list != null && list.length > 0)
+                      ? _parentList(list: list)
+                      : Container();
+                },
+              ),
+            ),
+            SizedBox(height: 10),
+            Center(
+              child: FutureBuilder<List<dynamic>>(
+                future: _userService.getUserBrotherAndSisters(userId: userId),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    print(snapshot.error.toString());
+                    return Center(
+                      child: Text('Some error occured, Please try again later'),
+                    );
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  List<dynamic> list = snapshot.data;
+                  return (list != null && list.length > 0)
+                      ? _parentList(list: list, isParent: false)
+                      : Container();
+                },
+              ),
+            ),
+            SizedBox(height: 10),
+            Center(
+              child: FutureBuilder<List<dynamic>>(
+                future: UserService().getSonAndDaughter(userId: userId),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    print(snapshot.error.toString());
+                    return Center(
+                      child: Text('Some error occured, Please try again later'),
+                    );
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  List<dynamic> list = snapshot.data;
+                  print(list.toString());
+                  return (list != null && list.length > 0)
+                      ? _parentList(list: list, isParent: false)
+                      : Container();
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
   // contact tab
@@ -919,5 +1000,53 @@ class _UserProfileState extends State<UserProfile> {
     final byteData = await rootBundle.load('assets/logo2.png');
     ui.decodeImageFromList(byteData.buffer.asUint8List(), completer.complete);
     return completer.future;
+  }
+
+  Widget _parentList({List<dynamic> list, bool isParent = true}) {
+    return SizedBox(
+      height: 80,
+      child: Stack(
+        children: <Widget>[
+          Positioned(
+            top: 37,
+            left: 84,
+            right: 30,
+            child: Container(height: 2, color: Theme.of(context).accentColor),
+          ),
+          ListView.builder(
+            padding: const EdgeInsets.only(left: 16),
+            scrollDirection: Axis.horizontal,
+            shrinkWrap: true,
+            itemBuilder: (ctx, i) {
+              return Container(
+                padding: const EdgeInsets.all(8),
+                margin: EdgeInsets.only(
+                    right: (list.length <= 2 && !isParent) ? 16 : 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+                child: Container(
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: CachedNetworkImageProvider(
+                          list[i]['profileImageUrl'],
+                        ),
+                        fit: BoxFit.fill,
+                      )),
+                ),
+              );
+            },
+            itemCount: list.length,
+          ),
+        ],
+      ),
+    );
   }
 }
