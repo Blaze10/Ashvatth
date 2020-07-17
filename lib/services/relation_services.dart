@@ -32,17 +32,31 @@ class RelationsService {
       for (var mem in canFatherList) {
         if (userData['isMarried'] && userData['gender'] == 'Female') {
           if (mem['firstName'].toString().indexOf(userData['fatherName']) !=
-              -1) {
-            list.add(
-                {"relation": "Father", "path": "users/${mem['id']}", ...mem});
-            fatherFound = true;
+                  -1 &&
+              !fatherFound) {
+            var exists = list.any((item) => item['relation'] == 'Father');
+            if (!exists) {
+              list.add({
+                ...mem,
+                "relation": "Father",
+                "path": "users/${mem['id']}",
+              });
+              fatherFound = true;
+            }
           }
         } else {
           if (mem['firstName'].toString().indexOf(userData['middleName']) !=
-              -1) {
-            list.add(
-                {"relation": "Father", "path": "users/${mem['id']}", ...mem});
-            fatherFound = true;
+                  -1 &&
+              !fatherFound) {
+            var exists = list.any((item) => item['relation'] == 'Father');
+            if (!exists) {
+              list.add({
+                ...mem,
+                "relation": "Father",
+                "path": "users/${mem['id']}",
+              });
+              fatherFound = true;
+            }
           }
         }
         if (fatherFound) break;
@@ -77,27 +91,35 @@ class RelationsService {
             for (var el in memAddedList) {
               if (userData['isMarried'] && userData['gender'] == 'Female') {
                 if (el['firstName']
-                        .toString()
-                        .indexOf(userData['fatherName']) !=
-                    -1) {
-                  list.add({
-                    "relation": "Father",
-                    "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                    ...el
-                  });
-                  fatherFound = true;
+                            .toString()
+                            .indexOf(userData['fatherName']) !=
+                        -1 &&
+                    !fatherFound) {
+                  var exists = list.any((item) => item['relation'] == 'Father');
+                  if (!exists) {
+                    list.add({
+                      ...el,
+                      "relation": "Father",
+                      "path": "users/${mem['id']}/addedMembers/${el['id']}",
+                    });
+                    fatherFound = true;
+                  }
                 }
               } else {
                 if (el['firstName']
-                        .toString()
-                        .indexOf(userData['middleName']) !=
-                    -1) {
-                  list.add({
-                    "relation": "Father",
-                    "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                    ...el
-                  });
-                  fatherFound = true;
+                            .toString()
+                            .indexOf(userData['middleName']) !=
+                        -1 &&
+                    !fatherFound) {
+                  var exists = list.any((item) => item['relation'] == 'Father');
+                  if (!exists) {
+                    list.add({
+                      ...el,
+                      "relation": "Father",
+                      "path": "users/${mem['id']}/addedMembers/${el['id']}",
+                    });
+                    fatherFound = true;
+                  }
                 }
               }
               if (fatherFound) break;
@@ -111,10 +133,17 @@ class RelationsService {
       // ** check for mother now ** //
 
       for (var mem in canFatherList) {
-        if (mem['firstName'].toString().indexOf(userData['motherName']) != -1) {
-          list.add(
-              {"relation": "Mother", "path": "users/${mem['id']}", ...mem});
-          motherFound = true;
+        if (mem['firstName'].toString().indexOf(userData['motherName']) != -1 &&
+            !motherFound) {
+          var exists = list.any((item) => item['relation'] == 'Mother');
+          if (!exists) {
+            list.add({
+              ...mem,
+              "relation": "Mother",
+              "path": "users/${mem['id']}",
+            });
+            motherFound = true;
+          }
         }
         if (motherFound) break;
       }
@@ -125,7 +154,12 @@ class RelationsService {
               .collection('users/${mem['id']}/addedMembers')
               .where('gender', isEqualTo: 'Female')
               .where('firstName', isEqualTo: userData['motherName'])
-              .where('lastName', isEqualTo: userData['lastName'])
+              .where('lastName',
+                  isEqualTo: (userData['gender'] == 'Male')
+                      ? userData['lastName']
+                      : userData['isMarried']
+                          ? userData['oldSurname']
+                          : userData['lastName'])
               .getDocuments());
 
           if (memAddedMembersRef != null &&
@@ -137,13 +171,17 @@ class RelationsService {
 
             for (var el in memAddedList) {
               if (el['firstName'].toString().indexOf(userData['motherName']) !=
-                  -1) {
-                list.add({
-                  "relation": "Mother",
-                  "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                  ...el
-                });
-                motherFound = true;
+                      -1 &&
+                  !motherFound) {
+                var exists = list.any((item) => item['relation'] == 'Mother');
+                if (!exists) {
+                  list.add({
+                    ...el,
+                    "relation": "Mother",
+                    "path": "users/${mem['id']}/addedMembers/${el['id']}",
+                  });
+                  motherFound = true;
+                }
               }
               if (motherFound) break;
             }
@@ -183,14 +221,14 @@ class RelationsService {
       print('Users List length ${usersList.length}');
 
       for (var mem in usersList) {
-        if (userData['gender'] == 'Female') {
+        if (userData['gender'] == 'Female' && userData['isMarried']) {
           // check for husband
           if ((mem['firstName'].toString().indexOf(userData['middleName']) !=
               -1)) {
             spouse = {
+              ...mem,
               "relation": "Husband",
               "path": "users/${mem['id']}",
-              ...mem
             };
             spouseFound = true;
           }
@@ -198,8 +236,13 @@ class RelationsService {
           // check for wife
           if ((mem['middleName'].toString().indexOf(userData['firstName']) !=
                   -1) &&
-              mem['isMarried']) {
-            spouse = {"relation": "Wife", "path": "users/${mem['id']}", ...mem};
+              mem['isMarried'] &&
+              userData['isMarried']) {
+            spouse = {
+              ...mem,
+              "relation": "Wife",
+              "path": "users/${mem['id']}",
+            };
           }
         }
         if (spouseFound) break;
@@ -209,22 +252,24 @@ class RelationsService {
       if (!spouseFound) {
         for (var mem in usersList) {
           QuerySnapshot addedMembersRef;
-          if (userData['gender'] == 'Male') {
+          if (userData['gender'] == 'Male' && userData['isMarried']) {
             addedMembersRef = (await db
                 .collection('users/${mem['id']}/addedMembers')
                 .where('gender', isEqualTo: 'Female')
                 .where('lastName', isEqualTo: userData['lastName'])
                 .where('middleName', isEqualTo: userData['firstName'])
+                .where('isMarried', isEqualTo: true)
                 .getDocuments());
           } else {
-            print('Called');
-            print('${mem['id']}');
-            addedMembersRef = (await db
-                .collection('users/${mem['id']}/addedMembers')
-                .where('gender', isEqualTo: 'Male')
-                .where('firstName', isEqualTo: userData['middleName'])
-                .where('lastName', isEqualTo: userData['lastName'])
-                .getDocuments());
+            if (userData['isMarried']) {
+              addedMembersRef = (await db
+                  .collection('users/${mem['id']}/addedMembers')
+                  .where('gender', isEqualTo: 'Male')
+                  .where('firstName', isEqualTo: userData['middleName'])
+                  .where('lastName', isEqualTo: userData['lastName'])
+                  .where('isMarried', isEqualTo: true)
+                  .getDocuments());
+            }
           }
 
           print('Called');
@@ -234,11 +279,11 @@ class RelationsService {
             print('Called');
             print(addedMembersRef.documents[0].data.toString());
             spouse = {
+              ...addedMembersRef.documents[0].data,
               "relation": (userData['gender'] == 'Male') ? 'Wife' : 'Husband',
               "id": addedMembersRef.documents[0].documentID,
               "path":
                   "users/${mem['id']}/addedMembers/${addedMembersRef.documents[0].documentID}",
-              ...addedMembersRef.documents[0].data,
             };
           }
         }
@@ -285,9 +330,9 @@ class RelationsService {
             var exists = relationList.any((el) => el['id'] == mem['id']);
             if (!exists) {
               relationList.add({
+                ...mem,
                 "relation": "Brother",
                 "path": "users/${mem['id']}",
-                ...mem
               });
             }
           }
@@ -300,9 +345,9 @@ class RelationsService {
             var exists = relationList.any((el) => el['id'] == mem['id']);
             if (!exists) {
               relationList.add({
+                ...mem,
                 "relation": "Brother",
                 "path": "users/${mem['id']}",
-                ...mem
               });
             }
           }
@@ -323,9 +368,9 @@ class RelationsService {
                   var exists = relationList.any((el) => el['id'] == mem['id']);
                   if (!exists) {
                     relationList.add({
+                      ...mem,
                       "relation": "Sister",
                       "path": "users/${mem['id']}",
-                      ...mem
                     });
                   }
                 }
@@ -341,9 +386,9 @@ class RelationsService {
                   var exists = relationList.any((el) => el['id'] == mem['id']);
                   if (!exists) {
                     relationList.add({
+                      ...mem,
                       "relation": "Sister",
                       "path": "users/${mem['id']}",
-                      ...mem
                     });
                   }
                 }
@@ -358,9 +403,9 @@ class RelationsService {
                 var exists = relationList.any((el) => el['id'] == mem['id']);
                 if (!exists) {
                   relationList.add({
+                    ...mem,
                     "relation": "Sister",
                     "path": "users/${mem['id']}",
-                    ...mem
                   });
                 }
               }
@@ -377,9 +422,9 @@ class RelationsService {
                   var exists = relationList.any((el) => el['id'] == mem['id']);
                   if (!exists) {
                     relationList.add({
+                      ...mem,
                       "relation": "Sister",
                       "path": "users/${mem['id']}",
-                      ...mem
                     });
                   }
                 }
@@ -395,9 +440,9 @@ class RelationsService {
                   var exists = relationList.any((el) => el['id'] == mem['id']);
                   if (!exists) {
                     relationList.add({
+                      ...mem,
                       "relation": "Sister",
                       "path": "users/${mem['id']}",
-                      ...mem
                     });
                   }
                 }
@@ -412,9 +457,9 @@ class RelationsService {
                 var exists = relationList.any((el) => el['id'] == mem['id']);
                 if (!exists) {
                   relationList.add({
+                    ...mem,
                     "relation": "Sister",
                     "path": "users/${mem['id']}",
-                    ...mem
                   });
                 }
               }
@@ -455,9 +500,9 @@ class RelationsService {
 
               if (!exists) {
                 relationList.add({
+                  ...el,
                   "relation": "Brother",
                   "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                  ...el
                 });
               }
             }
@@ -487,9 +532,9 @@ class RelationsService {
 
                   if (!exists) {
                     relationList.add({
+                      ...el,
                       "relation": "Sister",
                       "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                      ...el
                     });
                   }
                 }
@@ -507,9 +552,9 @@ class RelationsService {
 
                   if (!exists) {
                     relationList.add({
+                      ...el,
                       "relation": "Sister",
                       "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                      ...el
                     });
                   }
                 }
@@ -552,9 +597,9 @@ class RelationsService {
 
                   if (!exists) {
                     relationList.add({
+                      ...el,
                       "relation": "Brother",
                       "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                      ...el
                     });
                   }
                 }
@@ -572,9 +617,9 @@ class RelationsService {
 
                   if (!exists) {
                     relationList.add({
+                      ...el,
                       "relation": "Brother",
                       "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                      ...el
                     });
                   }
                 }
@@ -608,9 +653,9 @@ class RelationsService {
 
                     if (!exists) {
                       relationList.add({
+                        ...el,
                         "relation": "Sister",
                         "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                        ...el
                       });
                     }
                   }
@@ -630,9 +675,9 @@ class RelationsService {
 
                     if (!exists) {
                       relationList.add({
+                        ...el,
                         "relation": "Sister",
                         "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                        ...el
                       });
                     }
                   }
@@ -654,9 +699,9 @@ class RelationsService {
 
                     if (!exists) {
                       relationList.add({
+                        ...el,
                         "relation": "Sister",
                         "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                        ...el
                       });
                     }
                   }
@@ -674,9 +719,9 @@ class RelationsService {
 
                     if (!exists) {
                       relationList.add({
+                        ...el,
                         "relation": "Sister",
                         "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                        ...el
                       });
                     }
                   }
@@ -728,10 +773,15 @@ class RelationsService {
                   -1) &&
               (mem['lastName'].toString().indexOf(userData['lastName']) !=
                   -1)) {
-            var exists = relationList.any((el) => el['id'] == mem['id']);
+            var exists = relationList.any((el) => (el['id'] == mem['id'] ||
+                el['firstName'] == mem['firstName'] &&
+                    el['lastName'] == mem['lastName']));
             if (!exists) {
-              relationList.add(
-                  {"relation": "Son", "path": "users/${mem['id']}", ...mem});
+              relationList.add({
+                ...mem,
+                "relation": "Son",
+                "path": "users/${mem['id']}",
+              });
             }
           }
 
@@ -740,10 +790,15 @@ class RelationsService {
                   -1) &&
               (mem['lastName'].toString().indexOf(userData['lastName']) !=
                   -1)) {
-            var exists = relationList.any((el) => el['id'] == mem['id']);
+            var exists = relationList.any((el) => (el['id'] == mem['id'] ||
+                el['firstName'] == mem['firstName'] &&
+                    el['lastName'] == mem['lastName']));
             if (!exists) {
-              relationList.add(
-                  {"relation": "Son", "path": "users/${mem['id']}", ...mem});
+              relationList.add({
+                ...mem,
+                "relation": "Son",
+                "path": "users/${mem['id']}",
+              });
             }
           }
         }
@@ -759,12 +814,14 @@ class RelationsService {
                       -1) &&
                   (mem['oldSurname'].toString().indexOf(userData['lastName']) !=
                       -1)) {
-                var exists = relationList.any((el) => el['id'] == mem['id']);
+                var exists = relationList.any((el) => (el['id'] == mem['id'] ||
+                    el['firstName'] == mem['firstName'] &&
+                        el['lastName'] == mem['lastName']));
                 if (!exists) {
                   relationList.add({
+                    ...mem,
                     "relation": "Daughter",
                     "path": "users/${mem['id']}",
-                    ...mem
                   });
                 }
               }
@@ -775,12 +832,14 @@ class RelationsService {
                       -1) &&
                   (mem['oldSurname'].toString().indexOf(userData['lastName']) !=
                       -1)) {
-                var exists = relationList.any((el) => el['id'] == mem['id']);
+                var exists = relationList.any((el) => (el['id'] == mem['id'] ||
+                    el['firstName'] == mem['firstName'] &&
+                        el['lastName'] == mem['lastName']));
                 if (!exists) {
                   relationList.add({
+                    ...mem,
                     "relation": "Daughter",
                     "path": "users/${mem['id']}",
-                    ...mem
                   });
                 }
               }
@@ -793,12 +852,14 @@ class RelationsService {
                       -1) &&
                   (mem['lastName'].toString().indexOf(userData['lastName']) !=
                       -1)) {
-                var exists = relationList.any((el) => el['id'] == mem['id']);
+                var exists = relationList.any((el) => (el['id'] == mem['id'] ||
+                    el['firstName'] == mem['firstName'] &&
+                        el['lastName'] == mem['lastName']));
                 if (!exists) {
                   relationList.add({
+                    ...mem,
                     "relation": "Daughter",
                     "path": "users/${mem['id']}",
-                    ...mem
                   });
                 }
               }
@@ -809,12 +870,14 @@ class RelationsService {
                       -1) &&
                   (mem['lastName'].toString().indexOf(userData['lastName']) !=
                       -1)) {
-                var exists = relationList.any((el) => el['id'] == mem['id']);
+                var exists = relationList.any((el) => (el['id'] == mem['id'] ||
+                    el['firstName'] == mem['firstName'] &&
+                        el['lastName'] == mem['lastName']));
                 if (!exists) {
                   relationList.add({
+                    ...mem,
                     "relation": "Daughter",
                     "path": "users/${mem['id']}",
-                    ...mem
                   });
                 }
               }
@@ -851,13 +914,13 @@ class RelationsService {
               var exists = relationList.any((item) =>
                   (item['firstName'] == el['firstName'] &&
                       item['lastName'] == el['lastName'] &&
-                      item['relation'] == 'Brother'));
+                      item['relation'] == 'Son'));
 
               if (!exists) {
                 relationList.add({
+                  ...el,
                   "relation": "Son",
                   "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                  ...el
                 });
               }
             }
@@ -887,9 +950,9 @@ class RelationsService {
 
                   if (!exists) {
                     relationList.add({
+                      ...el,
                       "relation": "Daughter",
                       "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                      ...el
                     });
                   }
                 }
@@ -907,9 +970,9 @@ class RelationsService {
 
                   if (!exists) {
                     relationList.add({
+                      ...el,
                       "relation": "Daughter",
                       "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                      ...el
                     });
                   }
                 }
@@ -951,9 +1014,9 @@ class RelationsService {
 
                 if (!exists) {
                   relationList.add({
+                    ...el,
                     "relation": "Son",
                     "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                    ...el
                   });
                 }
               }
@@ -984,9 +1047,9 @@ class RelationsService {
 
                     if (!exists) {
                       relationList.add({
+                        ...el,
                         "relation": "Daughter",
                         "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                        ...el
                       });
                     }
                   }
@@ -1004,9 +1067,9 @@ class RelationsService {
 
                     if (!exists) {
                       relationList.add({
+                        ...el,
                         "relation": "Daughter",
                         "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                        ...el
                       });
                     }
                   }
@@ -1016,6 +1079,25 @@ class RelationsService {
           }
         }
       }
+
+      // relationList.forEach((el) {
+      //   var list = relationList
+      //       .where((item) =>
+      //           item['firstName'] == el['firstName'] &&
+      //           item['relation'] == el['relation'])
+      //       .toList();
+
+      //   if (list.length > 2) {
+      //     var index = relationList.indexWhere((item) =>
+      //         item['firstName'] == el['firstName'] &&
+      //         item['relation'] == el['relation']);
+
+      //     if (index != -1) {
+      //       relationList.removeAt(index);
+      //     }
+      //   }
+      // });
+
       return relationList;
     } catch (err) {
       print('Error elerating sibling relations');

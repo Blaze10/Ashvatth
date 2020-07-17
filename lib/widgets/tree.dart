@@ -53,14 +53,7 @@ class _TreeState extends State<Tree> {
             children: <Widget>[
               if (_showLoader) LinearProgressIndicator(),
               // parent list
-              Text(
-                'Parents',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                ),
-              ),
+              SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.only(top: 16, left: 16),
                 child: SizedBox(
@@ -88,7 +81,8 @@ class _TreeState extends State<Tree> {
                                   shrinkWrap: true,
                                   scrollDirection: Axis.horizontal,
                                   itemBuilder: (ctx, i) {
-                                    return _treeListItem("$userId", list[i]);
+                                    return _treeListItem(
+                                        "$userId", list[i], false);
                                   },
                                   itemCount: list.length,
                                 )
@@ -97,14 +91,7 @@ class _TreeState extends State<Tree> {
                   ),
                 ),
               ),
-              Text(
-                'Siblings',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                ),
-              ),
+              SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.only(bottom: 0),
                 child: // // brother sister
@@ -140,7 +127,8 @@ class _TreeState extends State<Tree> {
                                         right: (list.length > 2)
                                             ? 0
                                             : (i == 0) ? 80.0 : 0),
-                                    child: _treeListItem(this.userId, list[i]),
+                                    child: _treeListItem(
+                                        this.userId, list[i], false),
                                   );
                                 },
                               )
@@ -148,15 +136,7 @@ class _TreeState extends State<Tree> {
                       }),
                 ),
               ),
-
-              Text(
-                'Spouse',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                ),
-              ),
+              SizedBox(height: 10),
               // wife, himself and brother sister list
               Padding(
                 padding: const EdgeInsets.only(left: 16),
@@ -185,7 +165,7 @@ class _TreeState extends State<Tree> {
                               var wifeData = snapshot.data;
                               print(wifeData);
                               return (wifeData != null)
-                                  ? _treeListItem("$userId", wifeData)
+                                  ? _treeListItem("$userId", wifeData, false)
                                   : Text('');
                             })),
                     // himself
@@ -193,7 +173,7 @@ class _TreeState extends State<Tree> {
                       (currentUserData != null || widget.nonUserData != null)
                           ? Flexible(
                               child: _treeListItem(userId,
-                                  currentUserData ?? widget.nonUserData))
+                                  currentUserData ?? widget.nonUserData, true))
                           : Text(''),
                     if (!widget.selfTree)
                       Flexible(
@@ -211,22 +191,14 @@ class _TreeState extends State<Tree> {
                               }
                               var userData = snapshot.data;
                               return (userData != null)
-                                  ? _treeListItem(userId, userData)
+                                  ? _treeListItem(userId, userData, true)
                                   : Text(' ');
                             }),
                       ),
                   ],
                 ),
               ),
-
-              Text(
-                'Children',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                ),
-              ),
+              SizedBox(height: 10),
               // // children
               Padding(
                 padding: const EdgeInsets.only(top: 20, left: 16),
@@ -255,7 +227,8 @@ class _TreeState extends State<Tree> {
                                   shrinkWrap: true,
                                   scrollDirection: Axis.horizontal,
                                   itemBuilder: (ctx, i) {
-                                    return _treeListItem(this.userId, list[i]);
+                                    return _treeListItem(
+                                        this.userId, list[i], false);
                                   },
                                   itemCount: list.length,
                                 )
@@ -299,7 +272,7 @@ class _TreeState extends State<Tree> {
   }
 
   // list item
-  Widget _treeListItem(String userId, dynamic userData) {
+  Widget _treeListItem(String userId, dynamic userData, bool isSelf) {
     String relation = userData['relation'] ?? 'You';
     if (relation.indexOf('Brother') != -1) {
       relation = 'Brother';
@@ -318,13 +291,13 @@ class _TreeState extends State<Tree> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          // Text(
-          //   relation,
-          //   style: TextStyle(
-          //     color: Colors.red,
-          //     fontWeight: FontWeight.w600,
-          //   ),
-          // ),
+          Text(
+            !isSelf ? relation : 'You',
+            style: TextStyle(
+              color: Colors.red,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           GestureDetector(
             onTap: userData['id'] == userId
                 ? null
@@ -372,10 +345,19 @@ class _TreeState extends State<Tree> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                boxShadow: !isSelf
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: Colors.red,
+                          blurRadius: 16.0,
+                        )
+                      ],
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: Theme.of(context).primaryColor,
-                  width: 1.3,
+                  color: !isSelf ? Theme.of(context).primaryColor : Colors.red,
+                  width: !isSelf ? 1.3 : 3,
                 ),
               ),
               child: Container(

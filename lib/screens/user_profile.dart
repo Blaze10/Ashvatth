@@ -123,14 +123,10 @@ class _UserProfileState extends State<UserProfile> {
                 floatingActionButton: FloatingActionButton(
                   child: Icon(
                     FontAwesomeIcons.tree,
-                    color: (snapshot.data['matchUserId'] != null)
-                        ? Theme.of(context).accentColor
-                        : Colors.white,
+                    color: Theme.of(context).accentColor,
                     size: 30,
                   ),
-                  backgroundColor: (snapshot.data['matchUserId'] != null)
-                      ? Color(0xfff0cc8d)
-                      : Colors.grey,
+                  backgroundColor: Color(0xfff0cc8d),
                   onPressed: (snapshot.data['matchUserId'] != null)
                       ? () {
                           Navigator.of(context).push(

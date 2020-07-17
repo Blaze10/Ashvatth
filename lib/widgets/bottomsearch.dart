@@ -151,42 +151,42 @@ class _BottomSearchState extends State<BottomSearch> {
                         )
                       ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        child: AutoCompleteTextField<String>(
-                          decoration: InputDecoration(
-                              hintText: "Search relatives:",
-                              suffixIcon: Icon(Icons.search)),
-                          itemSubmitted: (item) {
-                            Navigator.of(context).push(CupertinoPageRoute(
-                                builder: (ctx) => UserProfile(
-                                    username: item.trim().toLowerCase())));
-                          },
-                          key: key,
-                          suggestions: _userSuggesstionNameList,
-                          itemBuilder: (context, suggestion) => Padding(
-                              child: ListTile(
-                                title: Text(suggestion),
-                              ),
-                              padding: EdgeInsets.all(8.0)),
-                          itemSorter: (a, b) {
-                            return a.compareTo(b);
-                          },
-                          itemFilter: (suggestion, input) {
-                            if (!_userSuggesstionNameList.any((item) =>
-                                item.trim().toLowerCase() ==
-                                input.trim().toLowerCase())) {
-                              return false;
-                            }
+                    // Padding(
+                    //   padding: const EdgeInsets.all(8.0),
+                    //   child: Container(
+                    //     child: AutoCompleteTextField<String>(
+                    //       decoration: InputDecoration(
+                    //           hintText: "Search relatives:",
+                    //           suffixIcon: Icon(Icons.search)),
+                    //       itemSubmitted: (item) {
+                    //         Navigator.of(context).push(CupertinoPageRoute(
+                    //             builder: (ctx) => UserProfile(
+                    //                 username: item.trim().toLowerCase())));
+                    //       },
+                    //       key: key,
+                    //       suggestions: _userSuggesstionNameList,
+                    //       itemBuilder: (context, suggestion) => Padding(
+                    //           child: ListTile(
+                    //             title: Text(suggestion),
+                    //           ),
+                    //           padding: EdgeInsets.all(8.0)),
+                    //       itemSorter: (a, b) {
+                    //         return a.compareTo(b);
+                    //       },
+                    //       itemFilter: (suggestion, input) {
+                    //         if (!_userSuggesstionNameList.any((item) =>
+                    //             item.trim().toLowerCase() ==
+                    //             input.trim().toLowerCase())) {
+                    //           return false;
+                    //         }
 
-                            return suggestion
-                                .toLowerCase()
-                                .startsWith(input.toLowerCase());
-                          },
-                        ),
-                      ),
-                    ),
+                    //         return suggestion
+                    //             .toLowerCase()
+                    //             .startsWith(input.toLowerCase());
+                    //       },
+                    //     ),
+                    //   ),
+                    // ),
                     Divider(
                       color: Theme.of(context).accentColor,
                     ),
@@ -232,7 +232,7 @@ class _BottomSearchState extends State<BottomSearch> {
                                             username: list[i]['firstName'] +
                                                 ' ' +
                                                 list[i]['lastName'],
-                                            confirmBtnText: 'View',
+                                            confirmBtnText: 'Edit',
                                           ),
                                         );
                                       },
