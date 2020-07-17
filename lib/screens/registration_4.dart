@@ -21,7 +21,7 @@ class Registration4 extends StatefulWidget {
 
 class _Registration4State extends State<Registration4> {
   var _phoneNumberController = TextEditingController();
-  // var _otpController = TextEditingController();
+  var _otpController = TextEditingController();
   var _isLoading = false;
   var _formKey = GlobalKey<FormState>();
   var _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -252,6 +252,7 @@ class _Registration4State extends State<Registration4> {
   // ***** OTP Verification Failed **** //
   _verificationFailed(AuthException exception) {
     _hideShowLoader(false);
+    print(exception.message.toString());
     _showErrorToast(exception.message, true);
   }
 
@@ -261,6 +262,7 @@ class _Registration4State extends State<Registration4> {
       this.verificationId = verificationId;
     });
     _showErrorToast('OTP Sent', false);
+    _openOtpDialog(verificationId);
   }
 
   // save user data to firestore
@@ -327,55 +329,55 @@ class _Registration4State extends State<Registration4> {
   }
 
   // otp dialog
-  // _openOtpDialog(String verificationId) {
-  //   return showDialog(
-  //     barrierDismissible: false,
-  //     context: context,
-  //     builder: (ctx) {
-  //       return AlertDialog(
-  //         title:
-  //             Text('Enter OTP', style: Theme.of(context).textTheme.headline1),
-  //         content: Column(
-  //           children: <Widget>[
-  //             Text(
-  //               'We will try to auto retrive the otp, Sit back and relax',
-  //               style: Theme.of(context).textTheme.subtitle1,
-  //             ),
-  //             Padding(
-  //               padding: const EdgeInsets.all(16.0),
-  //               child: InputFormField(
-  //                 controller: _otpController,
-  //                 keyboardType: TextInputType.number,
-  //                 labelText: 'OTP',
-  //                 hintText: 'XXXXXX',
-  //                 isDisabled: _isLoading,
-  //               ),
-  //             )
-  //           ],
-  //         ),
-  //         actions: <Widget>[
-  //           FlatButton(
-  //             child: Text('Confirm'),
-  //             textColor: Theme.of(context).primaryColor,
-  //             onPressed: () {
-  //               String smsCode = _otpController.text.trim();
+  _openOtpDialog(String verificationId) {
+    return showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title:
+              Text('Enter OTP', style: Theme.of(context).textTheme.headline1),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                'We will try to auto retrive the otp, Sit back and relax',
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: InputFormField(
+                  controller: _otpController,
+                  keyboardType: TextInputType.number,
+                  labelText: 'OTP',
+                  hintText: 'XXXXXX',
+                ),
+              )
+            ],
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Confirm'),
+              textColor: Theme.of(context).primaryColor,
+              onPressed: () {
+                String smsCode = _otpController.text.trim();
 
-  //               if (smsCode.isEmpty ||
-  //                   smsCode.length < 6 ||
-  //                   smsCode.length > 6) {
-  //                 _showErrorToast('Please enter a valid 6 digit OTP', true);
-  //                 return;
-  //               }
-  //               AuthCredential _credential = PhoneAuthProvider.getCredential(
-  //                 verificationId: verificationId,
-  //                 smsCode: smsCode,
-  //               );
-  //               _verificationCompleted(_credential);
-  //             },
-  //           )
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
+                if (smsCode.isEmpty ||
+                    smsCode.length < 6 ||
+                    smsCode.length > 6) {
+                  _showErrorToast('Please enter a valid 6 digit OTP', true);
+                  return;
+                }
+                AuthCredential _credential = PhoneAuthProvider.getCredential(
+                  verificationId: verificationId,
+                  smsCode: smsCode,
+                );
+                _verificationCompleted(_credential);
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
 }

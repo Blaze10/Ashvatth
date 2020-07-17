@@ -65,9 +65,9 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                                       )),
                                   child: Container(
                                     height: MediaQuery.of(context).size.height *
-                                        0.11,
+                                        0.20,
                                     width: MediaQuery.of(context).size.height *
-                                        0.11,
+                                        0.20,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       image: DecorationImage(
@@ -87,50 +87,50 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                             ),
                           );
                         }),
-                    Positioned(
-                      top: 16,
-                      right: (MediaQuery.of(context).size.height * 0.11) - 50,
-                      child: Container(
-                        height: MediaQuery.of(context).size.height * 0.07,
-                        width: MediaQuery.of(context).size.height * 0.07,
-                        child: FloatingActionButton(
-                          onPressed: () {
-                            showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                builder: (ctx) {
-                                  return Container(
-                                    child: BottomSearch(
-                                      ctx: ctx,
-                                    ),
-                                    height:
-                                        MediaQuery.of(context).size.height * .8,
-                                  );
-                                }).then((res) {
-                              if (res != null && res.runtimeType == String) {
-                                Navigator.of(context).push(
-                                  CupertinoPageRoute(
-                                    builder: (ctx) =>
-                                        UserInfoFormPage(relationship: res),
-                                  ),
-                                );
-                              }
-                            });
-                          },
-                          child: Icon(Icons.add, color: Colors.white),
-                          backgroundColor: Color(0xffab4612),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: (MediaQuery.of(context).size.height * 0.11) / 2,
-                      right: (MediaQuery.of(context).size.height * 0.11),
-                      child: Container(
-                        width: 50,
-                        height: 2,
-                        color: Color(0xff8d6e52),
-                      ),
-                    )
+                    // Positioned(
+                    //   top: 16,
+                    //   right: (MediaQuery.of(context).size.height * 0.11) - 50,
+                    //   child: Container(
+                    //     height: MediaQuery.of(context).size.height * 0.07,
+                    //     width: MediaQuery.of(context).size.height * 0.07,
+                    //     child: FloatingActionButton(
+                    //       onPressed: () {
+                    //         showModalBottomSheet(
+                    //             context: context,
+                    //             isScrollControlled: true,
+                    //             builder: (ctx) {
+                    //               return Container(
+                    //                 child: BottomSearch(
+                    //                   ctx: ctx,
+                    //                 ),
+                    //                 height:
+                    //                     MediaQuery.of(context).size.height * .8,
+                    //               );
+                    //             }).then((res) {
+                    //           if (res != null && res.runtimeType == String) {
+                    //             Navigator.of(context).push(
+                    //               CupertinoPageRoute(
+                    //                 builder: (ctx) =>
+                    //                     UserInfoFormPage(relationship: res),
+                    //               ),
+                    //             );
+                    //           }
+                    //         });
+                    //       },
+                    //       child: Icon(Icons.add, color: Colors.white),
+                    //       backgroundColor: Color(0xffab4612),
+                    //     ),
+                    //   ),
+                    // ),
+                    // Positioned(
+                    //   top: (MediaQuery.of(context).size.height * 0.11) / 2,
+                    //   right: (MediaQuery.of(context).size.height * 0.11),
+                    //   child: Container(
+                    //     width: 50,
+                    //     height: 2,
+                    //     color: Color(0xff8d6e52),
+                    //   ),
+                    // )
                   ],
                 ),
               ),
@@ -159,12 +159,33 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                     FloatingActionButton(
                       heroTag: 'mid',
                       child: Icon(
-                        Icons.public,
+                        Icons.add,
                         size: 50,
                         color: Theme.of(context).primaryColor,
                       ),
                       backgroundColor: Color(0xfff0cc8d),
-                      onPressed: () {},
+                      onPressed: () {
+                        showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (ctx) {
+                              return Container(
+                                child: BottomSearch(
+                                  ctx: ctx,
+                                ),
+                                height: MediaQuery.of(context).size.height * .8,
+                              );
+                            }).then((res) {
+                          if (res != null && res.runtimeType == String) {
+                            Navigator.of(context).push(
+                              CupertinoPageRoute(
+                                builder: (ctx) =>
+                                    UserInfoFormPage(relationship: res),
+                              ),
+                            );
+                          }
+                        });
+                      },
                     ),
                     FloatingActionButton(
                       heroTag: 'right',

@@ -9,7 +9,8 @@ class UserService {
     try {
       String userId = (await FirebaseAuth.instance.currentUser()).uid;
       var userRef = (await _db.document('users/$userId').get());
-      return {"id": userRef.documentID, ...userRef.data};
+      var userData = {"id": userRef.documentID, ...userRef.data};
+      return userData;
     } catch (err) {
       print('Error getting user data');
       return null;
@@ -49,20 +50,22 @@ class UserService {
     try {
       String userId = (await FirebaseAuth.instance.currentUser()).uid;
 
-      // var userData = (await _db.document('users/$userId').get()).data;
+      var userData = (await _db.document('users/$userId').get()).data;
 
-      // if (userData['isMarried'] != null && !userData['isMarried']) {
-      //   relations.removeWhere(
-      //       (item) => (item == 'Wife' || item == 'Son' || item == 'Daughter'));
-      // }
+      if (userData['isMarried'] != null && userData['isMarried']) {
+        if (userData['gender'] != null) {
+          if (userData['gender'] == 'Male') {
+            relations.removeWhere((item) => (item == 'Husband'));
+          } else {
+            relations.removeWhere((item) => (item == 'Wife'));
+          }
+        }
+      }
 
       List<String> list = List<String>();
 
-      relations.forEach((el) async {
-        if (el == "Grandfather" ||
-            el == "Grandmother" ||
-            el == "Father" ||
-            el == "Mother") {
+      for (var el in relations) {
+        if (el == "Father" || el == "Mother") {
           var ref =
               (await _db.document('users/$userId/addedMembers/$el').get());
           if (!ref.exists) {
@@ -70,17 +73,38 @@ class UserService {
           }
         } else {
           var userData = (await _db.document('users/$userId').get()).data;
-          if ((el == 'Son' || el == 'Daughter' || el == 'Wife')) {
+          if ((el == 'Son' ||
+              el == 'Daughter' ||
+              el == 'Wife' ||
+              el == 'Husband')) {
             if (userData['isMarried'] != null && userData['isMarried']) {
-              list.add(el);
+              if (el == 'Wife') {
+                var ref = (await _db
+                    .document('users/$userId/addedMembers/$el')
+                    .get());
+                if (!ref.exists) {
+                  print('adding wife');
+                  list.add(el);
+                }
+              } else if (el == 'Husband') {
+                var ref = (await _db
+                    .document('users/$userId/addedMembers/$el')
+                    .get());
+                if (!ref.exists) {
+                  print('adding husband');
+                  list.add(el);
+                }
+              } else {
+                list.add(el);
+              }
             }
           } else {
             list.add(el);
           }
         }
-      });
+      }
 
-      print(list.toString());
+      print('returning list');
       return list;
     } catch (err) {
       print(err.toString());
@@ -112,6 +136,7 @@ class UserService {
   // get user parent relations
   Future<List<dynamic>> getUserParentRelations({String userId}) async {
     try {
+      print('user parent relation userid: $userId');
       List<dynamic> list = List<dynamic>();
 
       // get father
@@ -119,7 +144,10 @@ class UserService {
           (await _db.document('users/$userId/addedMembers/Father').get());
 
       if (fatherRef.exists) {
-        var fatherData = {"id": fatherRef.documentID, ...fatherRef.data};
+        var fatherData = {
+          "id": fatherRef.documentID,
+          ...fatherRef.data,
+        };
         list.add(fatherData);
       }
 
@@ -150,35 +178,25 @@ class UserService {
       List<dynamic> list = List<dynamic>();
 
       // get user data
-      var userRef = (await _db.document('users/$userId').get());
-      list.add({"id": userRef.documentID, ...userRef.data});
+      // var userRef = (await _db.document('users/$userId').get());
+      // list.add({"id": userRef.documentID, ...userRef.data});
 
       // get all brothers
-      var brothersRef = (await _db
-          .collection('users/$userId/addedMembers')
-          .where('relation', isEqualTo: 'Brother')
-          .getDocuments());
+      var brothersRef =
+          (await _db.collection('users/$userId/addedMembers').getDocuments());
 
       if (brothersRef != null &&
           brothersRef.documents != null &&
           brothersRef.documents.length > 0) {
-        brothersRef.documents.forEach((broDoc) {
-          list.add({"id": broDoc.documentID, ...broDoc.data});
+        brothersRef.documents.forEach((doc) {
+          if (doc.data['relation'].toString().indexOf('Brother') != -1) {
+            list.add({"id": doc.documentID, ...doc.data});
+          }
+
+          if (doc.data['relation'].toString().indexOf('Sister') != -1) {
+            list.add({"id": doc.documentID, ...doc.data});
+          }
         });
-
-        // get all sisters
-        var sisterRef = (await _db
-            .collection('users/$userId/addedMembers')
-            .where('relation', isEqualTo: 'Sister')
-            .getDocuments());
-
-        if (sisterRef != null &&
-            sisterRef.documents != null &&
-            sisterRef.documents.length > 0) {
-          sisterRef.documents.forEach((sisDoc) {
-            list.add({"id": sisDoc.documentID, ...sisDoc.data});
-          });
-        }
       }
 
       return list;
@@ -196,31 +214,20 @@ class UserService {
       List<dynamic> list = List<dynamic>();
 
       // get all sons
-      var sonsRef = (await _db
-          .collection('users/$userId/addedMembers')
-          .where('relation', isEqualTo: 'Son')
-          .getDocuments());
+      var sonsRef =
+          (await _db.collection('users/$userId/addedMembers').getDocuments());
 
       if (sonsRef != null &&
           sonsRef.documents != null &&
           sonsRef.documents.length > 0) {
-        sonsRef.documents.forEach((sonDoc) {
-          list.add({"id": sonDoc.documentID, ...sonDoc.data});
-        });
-
-        // get all daughterRef
-        var daughterRef = (await _db
-            .collection('users/$userId/addedMembers')
-            .where('relation', isEqualTo: 'Daughter')
-            .getDocuments());
-
-        if (daughterRef != null &&
-            daughterRef.documents != null &&
-            daughterRef.documents.length > 0) {
-          daughterRef.documents.forEach((doc) {
+        sonsRef.documents.forEach((doc) {
+          if (doc.data['relation'].toString().indexOf('Son') != -1) {
             list.add({"id": doc.documentID, ...doc.data});
-          });
-        }
+          }
+          if (doc.data['relation'].toString().indexOf('Daughter') != -1) {
+            list.add({"id": doc.documentID, ...doc.data});
+          }
+        });
       }
 
       if (list != null && list.length > 0) {
@@ -231,6 +238,74 @@ class UserService {
     } catch (err) {
       print('Error getting users son daughter relations');
       print(err.toString());
+      return null;
+    }
+  }
+
+  // get user by userId
+  Future<Map<String, dynamic>> getUserById({String userId}) async {
+    try {
+      var userRef = (await _db.document('users/$userId').get());
+
+      if (!userRef.exists) {
+        return null;
+      }
+
+      return {"id": userRef.documentID, ...userRef.data};
+    } catch (err) {
+      print(err.toString());
+      return null;
+    }
+  }
+
+  // get wife
+  Future<Map<String, dynamic>> getWifeRelation({String userId}) async {
+    try {
+      var wifeRef =
+          (await _db.document('users/$userId/addedMembers/Wife').get());
+
+      if (!wifeRef.exists) {
+        return null;
+      }
+
+      return {"id": wifeRef.documentID, ...wifeRef.data};
+    } catch (err) {
+      print(err.toString());
+      print('Error getting wife relations');
+      return null;
+    }
+  }
+
+  // get user members data
+  Future<Map<String, dynamic>> getUserMemberDataByPath(String docPath) async {
+    try {
+      var userRef = (await _db.document(docPath).get());
+      var userData = {"id": userRef.documentID, ...userRef.data};
+
+      print(userData.toString());
+
+      // check in database if user exists
+      var dbRef = (await _db
+          .collection('users')
+          .where('firstName', isEqualTo: userRef.data['firstName'] ?? '')
+          .where('middleName', isEqualTo: userRef.data['middleName'] ?? '')
+          .where('lastName', isEqualTo: userRef.data['lastName'] ?? '')
+          .getDocuments());
+
+      print(dbRef.documents.length);
+
+      // check is found
+      if (dbRef != null && dbRef.documents.length > 0) {
+        print('Innn');
+        // print(dbRef.documents[0].documentID);
+        userData = {...userData, "matchUserId": dbRef.documents[0].documentID};
+        return userData;
+      } else {
+        return userData;
+      }
+    } catch (err) {
+      print(err.toString());
+      print('Error getting added member data');
       return null;
     }
   }

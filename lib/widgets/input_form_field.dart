@@ -13,6 +13,7 @@ class InputFormField extends StatelessWidget {
   final Function onTapFunction;
   final bool isDate;
   final bool isMultiline;
+  final bool isInlineBorder;
 
   InputFormField({
     @required this.labelText,
@@ -26,6 +27,7 @@ class InputFormField extends StatelessWidget {
     this.onTapFunction,
     this.isDate = false,
     this.isMultiline = false,
+    this.isInlineBorder = false,
   });
 
   @override
@@ -35,18 +37,33 @@ class InputFormField extends StatelessWidget {
       controller: controller,
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.only(left: 28, top: 14, bottom: 14),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(0),
-          borderSide: BorderSide(color: Color(0xff8d6e52), width: 2),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(0),
-          borderSide: BorderSide(color: Color(0xff8d6e52), width: 2),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(0),
-          borderSide: BorderSide(color: Color(0xff8d6e52), width: 2),
-        ),
+        border: !isInlineBorder
+            ? OutlineInputBorder(
+                borderRadius: BorderRadius.circular(0),
+                borderSide: BorderSide(color: Color(0xff8d6e52), width: 2),
+              )
+            : UnderlineInputBorder(
+                borderRadius: BorderRadius.circular(0),
+                borderSide: BorderSide(color: Color(0xff8d6e52), width: 2),
+              ),
+        focusedBorder: !isInlineBorder
+            ? OutlineInputBorder(
+                borderRadius: BorderRadius.circular(0),
+                borderSide: BorderSide(color: Color(0xff8d6e52), width: 2),
+              )
+            : UnderlineInputBorder(
+                borderRadius: BorderRadius.circular(0),
+                borderSide: BorderSide(color: Color(0xff8d6e52), width: 2),
+              ),
+        enabledBorder: !isInlineBorder
+            ? OutlineInputBorder(
+                borderRadius: BorderRadius.circular(0),
+                borderSide: BorderSide(color: Color(0xff8d6e52), width: 2),
+              )
+            : UnderlineInputBorder(
+                borderRadius: BorderRadius.circular(0),
+                borderSide: BorderSide(color: Color(0xff8d6e52), width: 2),
+              ),
         labelText: labelText,
         labelStyle: TextStyle(color: Theme.of(context).primaryColor),
         hintText: hintText,

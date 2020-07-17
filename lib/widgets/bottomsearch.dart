@@ -4,6 +4,7 @@ import 'package:Ashvatth/services/user_service.dart';
 import 'package:Ashvatth/widgets/notification_card.dart';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -24,12 +25,11 @@ class _BottomSearchState extends State<BottomSearch> {
   String _selectedRelation;
   List<String> _userSuggesstionNameList = List<String>();
   List<String> availableRalations = [
-    "Grandfather",
-    "Grandmother",
     "Father",
     "Mother",
     "Brother",
     "Sister",
+    "Husband",
     "Wife",
     "Son",
     "Daughter",
@@ -77,13 +77,7 @@ class _BottomSearchState extends State<BottomSearch> {
         floatingActionButton: FloatingActionButton(
           onPressed: _selectedRelation != null
               ? () {
-                  // Navigator.of(widget.ctx).push(
-                  //   CupertinoPageRoute(
-                  //       builder: (ctx) => UserInfoFormPage(
-                  //             relationship: _selectedRelation,
-                  //           )),
-                  // );
-                  Navigator.of(context).pop(_selectedRelation);
+                  _onAddRelation();
                 }
               : () {
                   _scaffoldKey.currentState.hideCurrentSnackBar();
@@ -92,7 +86,7 @@ class _BottomSearchState extends State<BottomSearch> {
                     backgroundColor: Theme.of(context).errorColor,
                   ));
                 },
-          child: Icon(Icons.person),
+          child: Icon(Icons.person_add),
         ),
         body: FutureBuilder<dynamic>(
             future: userDataFuture,
@@ -222,19 +216,24 @@ class _BottomSearchState extends State<BottomSearch> {
                                       shrinkWrap: true,
                                       itemCount: list.length,
                                       itemBuilder: (ctx, i) {
-                                        return NotificationCard(
-                                          imageUrl: list[i]['profileImageUrl'],
-                                          mainText: list[i]['relation'],
-                                          middleText: 'Added by you',
-                                          onConfirm: () {
-                                            _onViewAddedMember(
-                                              list[i]['relation'],
-                                            );
-                                          },
-                                          username: list[i]['firstName'] +
-                                              ' ' +
-                                              list[i]['lastName'],
-                                          confirmBtnText: 'View',
+                                        return Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 16.0),
+                                          child: NotificationCard(
+                                            imageUrl: list[i]
+                                                ['profileImageUrl'],
+                                            mainText: list[i]['relation'],
+                                            middleText: 'Added by you',
+                                            onConfirm: () {
+                                              _onViewAddedMember(
+                                                list[i]['relation'],
+                                              );
+                                            },
+                                            username: list[i]['firstName'] +
+                                                ' ' +
+                                                list[i]['lastName'],
+                                            confirmBtnText: 'View',
+                                          ),
                                         );
                                       },
                                     )
@@ -287,6 +286,47 @@ class _BottomSearchState extends State<BottomSearch> {
     setState(() {
       showLoader = value;
     });
+  }
+
+  _onAddRelation() async {
+    try {
+      String selectedReltaion = _selectedRelation;
+
+      if (_selectedRelation == 'Brother' ||
+          _selectedRelation == 'Sister' ||
+          _selectedRelation == 'Son' ||
+          _selectedRelation == 'Daughter') {
+        print('in');
+        var userId = (await FirebaseAuth.instance.currentUser()).uid;
+
+        var currentCollection = (await Firestore.instance
+            .collection('users/$userId/addedMembers')
+            .getDocuments());
+
+        if (currentCollection != null &&
+            currentCollection.documents.length > 0) {
+          var list =
+              currentCollection.documents.map((doc) => doc.data).toList();
+          print(list.length);
+          var newList = list.where((item) {
+            var d = item['relation'].toString().indexOf(_selectedRelation);
+            print(d);
+            return d != -1;
+          }).toList();
+
+          print(newList.length);
+          if (newList != null && newList.length > 0) {
+            selectedReltaion =
+                _selectedRelation + (newList.length + 1).toString();
+          }
+        }
+      }
+      print(selectedReltaion);
+      Navigator.of(context).pop(selectedReltaion);
+    } catch (err) {
+      print(err.toString());
+      showHideLoader(false);
+    }
   }
 
   // on view added member

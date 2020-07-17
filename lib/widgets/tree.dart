@@ -1,188 +1,408 @@
+import 'package:Ashvatth/screens/user_profile.dart';
+import 'package:Ashvatth/services/relation_services.dart';
+import 'package:Ashvatth/services/user_service.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:zoom_widget/zoom_widget.dart';
 
-class Tree extends StatelessWidget {
-  static const routeName = "tree";
-  dynamic family = {
-    "R1": "Gfather",
-    "R2": "GMother",
-    "children": [
-      {
-        "P1": "father",
-        "P2": "mother",
-        "children": {
-          0: {
-            "P1": "brother1",
-            "P2": "sister-in-law-1",
-            "children": {
-              0: "nephew1",
-              1: "neice1",
-            }
-          },
-          1: "sister",
-          2: "you",
-        }
-      },
-      {
-        "P1": "uncle1",
-        "P2": "aunty1",
-        "children": {
-          0: "brother1",
-          1: "sister1",
-        }
-      },
-      {
-        "P1": "uncle2",
-        "P2": "aunty2",
-        "children": {
-          0: "brother2",
-          1: "sister2",
-        }
-      },
-    ]
-  };
+class Tree extends StatefulWidget {
+  final bool selfTree;
+  final String userId;
+  final bool isNonUserTree;
+  final dynamic nonUserData;
+
+  Tree(
+      {this.selfTree = true,
+      this.userId,
+      this.isNonUserTree = false,
+      this.nonUserData});
+
+  @override
+  _TreeState createState() => _TreeState();
+}
+
+class _TreeState extends State<Tree> {
+  Map<String, dynamic> currentUserData;
+  String userId;
+  bool _showLoader = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.selfTree) {
+      Future.delayed(Duration.zero, () {
+        _getCurrentUserId();
+      });
+    } else if (widget.userId != null) {
+      setState(() {
+        userId = widget.userId;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    print(family['R1']);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Tree'),
-      ),
-      body: Zoom(
-        width: 1800,
-        height: 1800,
-        onPositionUpdate: (Offset position) {
-          print(position);
-        },
-        onScaleUpdate: (double scale, double zoom) {
-          print("$scale  $zoom");
-        },
-        child: Center(
+    return SafeArea(
+      child: Scaffold(
+        body: SingleChildScrollView(
           child: Column(
-            children: [
-              Flexible(
-                  flex: 1,
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        RaisedButton(
-                          child: Text(family['R1']),
-                          onPressed: () {},
-                        ),
-                        RaisedButton(
-                          child: Text(family['R2']),
-                          onPressed: () {},
-                        ),
-                      ],
-                    ),
-                  )),
-              Flexible(
-                flex: 8,
-                child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: family['children'].length,
-                    // itemExtent: 10.0,
-                    // reverse: true, //makes the list appear in descending order
-                    itemBuilder: (BuildContext context, int i) {
-                      return Flexible(
-                        flex: 1,
-                        child: Container(
-                          width: MediaQuery.of(context).size.width * .8,
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  RaisedButton(
-                                    child: Text(family['children'][i]['P1']),
-                                    onPressed: () {},
-                                  ),
-                                  RaisedButton(
-                                    child: Text(family['children'][i]['P2']),
-                                    onPressed: () {},
-                                  ),
-                                ],
-                              ),
-                              ListView.builder(
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              if (_showLoader) LinearProgressIndicator(),
+              // parent list
+              Text(
+                'Parents',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 16, left: 16),
+                child: SizedBox(
+                  height: 160,
+                  child: Center(
+                    child: FutureBuilder(
+                        future: (!widget.isNonUserTree &&
+                                widget.nonUserData == null)
+                            ? UserService()
+                                .getUserParentRelations(userId: this.userId)
+                            : RelationsService().generateMotherFatherRelation(
+                                userData: widget.nonUserData),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            print(snapshot.error.toString());
+                            return Text('');
+                          }
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return CircularProgressIndicator();
+                          }
+                          var list = snapshot.data;
+                          return (list != null && list.length > 0)
+                              ? ListView.builder(
                                   shrinkWrap: true,
-                                  physics: const ClampingScrollPhysics(),
-                                  itemCount:
-                                      family['children'][i]['children'].length,
-                                  // itemExtent: 10.0,
-                                  // reverse: true, //makes the list appear in descending order
-                                  itemBuilder: (BuildContext context, int iX) {
-                                    if (family['children'][i]['children'][iX]
-                                        is String) {
-                                      return Row(
-                                        children: [
-                                          RaisedButton(
-                                            child: Text(family['children'][i]
-                                                ['children'][iX]),
-                                            onPressed: () {},
-                                          ),
-                                        ],
-                                      );
-                                    } else {
-                                      return Column(
-                                        children: [
-                                          Row(
-                                            mainAxisSize: MainAxisSize.max,
-                                            children: [
-                                              RaisedButton(
-                                                child: Text(family['children']
-                                                    [i]['children'][iX]['P1']),
-                                                onPressed: () {},
-                                              ),
-                                              RaisedButton(
-                                                child: Text(family['children']
-                                                    [i]['children'][iX]['P2']),
-                                                onPressed: () {},
-                                              ),
-                                            ],
-                                          ),
-                                          ListView.builder(
-                                              shrinkWrap: true,
-                                              physics:
-                                                  const ClampingScrollPhysics(),
-                                              itemCount: family['children'][i]
-                                                          ['children'][iX]
-                                                      ['children']
-                                                  .length,
-                                              itemBuilder:
-                                                  (BuildContext context,
-                                                      int iy) {
-                                                return Row(
-                                                  children: [
-                                                    SizedBox(width: 20),
-                                                    RaisedButton(
-                                                      child: Text(family[
-                                                                  'children'][i]
-                                                              ['children'][iX]
-                                                          ['children'][iy]),
-                                                      onPressed: () {},
-                                                    ),
-                                                  ],
-                                                );
-                                              })
-                                        ],
-                                      );
-                                    }
-                                  })
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
+                                  scrollDirection: Axis.horizontal,
+                                  itemBuilder: (ctx, i) {
+                                    return _treeListItem("$userId", list[i]);
+                                  },
+                                  itemCount: list.length,
+                                )
+                              : Text('No Mother / Father relations found');
+                        }),
+                  ),
+                ),
+              ),
+              Text(
+                'Siblings',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 0),
+                child: // // brother sister
+                    SizedBox(
+                  height: 160,
+                  child: FutureBuilder(
+                      future:
+                          (!widget.isNonUserTree && widget.nonUserData == null)
+                              ? UserService()
+                                  .getUserBrotherAndSisters(userId: this.userId)
+                              : RelationsService().generateSiblingRelations(
+                                  userData: widget.nonUserData),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          print(snapshot.error.toString());
+                          return Text(' ');
+                        }
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        }
+                        var list = snapshot.data;
+                        return (list != null && list.length > 0)
+                            ? ListView.builder(
+                                itemCount: list.length,
+                                scrollDirection: Axis.horizontal,
+                                shrinkWrap: true,
+                                padding: EdgeInsets.only(
+                                    left: list.length > 1 ? 0 : 0, top: 8),
+                                itemBuilder: (ctx, i) {
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                        right: (list.length > 2)
+                                            ? 0
+                                            : (i == 0) ? 80.0 : 0),
+                                    child: _treeListItem(this.userId, list[i]),
+                                  );
+                                },
+                              )
+                            : Text('No Brother / Sister relations found');
+                      }),
+                ),
+              ),
+
+              Text(
+                'Spouse',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+              ),
+              // wife, himself and brother sister list
+              Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    // wife
+                    Flexible(
+                        child: FutureBuilder(
+                            future: (!widget.isNonUserTree &&
+                                    widget.nonUserData == null)
+                                ? UserService()
+                                    .getWifeRelation(userId: this.userId)
+                                : RelationsService().generateSpouseRelations(
+                                    userData: widget.nonUserData),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasError) {
+                                print(snapshot.error.toString());
+                                return Text('No Wife relations found');
+                              }
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return CircularProgressIndicator();
+                              }
+                              var wifeData = snapshot.data;
+                              print(wifeData);
+                              return (wifeData != null)
+                                  ? _treeListItem("$userId", wifeData)
+                                  : Text('');
+                            })),
+                    // himself
+                    if (widget.selfTree || widget.isNonUserTree)
+                      (currentUserData != null || widget.nonUserData != null)
+                          ? Flexible(
+                              child: _treeListItem(userId,
+                                  currentUserData ?? widget.nonUserData))
+                          : Text(''),
+                    if (!widget.selfTree)
+                      Flexible(
+                        child: FutureBuilder(
+                            future: UserService().getUserById(userId: userId),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasError) {
+                                print(snapshot.error.toString());
+                                return Text(' ');
+                              }
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                    child: CircularProgressIndicator());
+                              }
+                              var userData = snapshot.data;
+                              return (userData != null)
+                                  ? _treeListItem(userId, userData)
+                                  : Text(' ');
+                            }),
+                      ),
+                  ],
+                ),
+              ),
+
+              Text(
+                'Children',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+              ),
+              // // children
+              Padding(
+                padding: const EdgeInsets.only(top: 20, left: 16),
+                child: SizedBox(
+                  height: 160,
+                  child: Center(
+                    child: FutureBuilder(
+                        future: (!widget.isNonUserTree &&
+                                widget.nonUserData == null)
+                            ? UserService()
+                                .getSonAndDaughter(userId: this.userId)
+                            : RelationsService().generateSonDaughterRelations(
+                                userData: widget.nonUserData),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            print(snapshot.error.toString());
+                            return Text(' ');
+                          }
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                          var list = snapshot.data;
+                          return (list != null && list.length > 0)
+                              ? ListView.builder(
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  itemBuilder: (ctx, i) {
+                                    return _treeListItem(this.userId, list[i]);
+                                  },
+                                  itemCount: list.length,
+                                )
+                              : Text(' ');
+                        }),
+                  ),
+                ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // hideshow Loader
+  _hideShowLoader(bool value) {
+    setState(() {
+      _showLoader = value;
+    });
+  }
+
+  // get current userid
+  _getCurrentUserId() async {
+    try {
+      _hideShowLoader(true);
+      var userId = (await FirebaseAuth.instance.currentUser()).uid;
+
+      var userRef = (await Firestore.instance.document('users/$userId').get());
+
+      setState(() {
+        this.userId = userId;
+        this.currentUserData = {"id": userId, ...userRef.data};
+      });
+
+      _hideShowLoader(false);
+    } catch (err) {
+      print(err.toString());
+      _hideShowLoader(false);
+    }
+  }
+
+  // list item
+  Widget _treeListItem(String userId, dynamic userData) {
+    String relation = userData['relation'] ?? 'You';
+    if (relation.indexOf('Brother') != -1) {
+      relation = 'Brother';
+    }
+    if (relation.indexOf('Sister') != -1) {
+      relation = 'Sister';
+    }
+    if (relation.indexOf('Son') != -1) {
+      relation = 'Son';
+    }
+    if (relation.indexOf('Daughter') != -1) {
+      relation = 'Daughter';
+    }
+    return Padding(
+      padding: const EdgeInsets.only(right: 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          // Text(
+          //   relation,
+          //   style: TextStyle(
+          //     color: Colors.red,
+          //     fontWeight: FontWeight.w600,
+          //   ),
+          // ),
+          GestureDetector(
+            onTap: userData['id'] == userId
+                ? null
+                : (userData['relation'] != null && userId != null)
+                    ? () {
+                        print('asdasdas');
+                        if (userData['path'] == null) {
+                          print('asdasd');
+                          Navigator.of(context).push(
+                            CupertinoPageRoute(
+                              builder: (ctx) => UserProfile(
+                                relationPath:
+                                    'users/$userId/addedMembers/${userData['relation']}',
+                              ),
+                            ),
+                          );
+                        } else {
+                          print('${userData['path']}');
+                          Navigator.of(context).push(
+                            CupertinoPageRoute(
+                              builder: (ctx) => UserProfile(
+                                relationPath: userData['path'],
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                    : () {
+                        if (userData['path'] == null) {
+                          // Navigator.of(context).push(
+                          //   CupertinoPageRoute(
+                          //     builder: (ctx) => UserProfile(),
+                          //   ),
+                          // );
+                        } else {
+                          Navigator.of(context).push(
+                            CupertinoPageRoute(
+                              builder: (ctx) => UserProfile(
+                                relationPath: userData['path'],
+                              ),
+                            ),
+                          );
+                        }
+                      },
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Theme.of(context).primaryColor,
+                  width: 1.3,
+                ),
+              ),
+              child: Container(
+                height: 80,
+                width: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image:
+                        CachedNetworkImageProvider(userData['profileImageUrl']),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Text(
+            (userData != null && userData['firstName'] != null)
+                ? userData['firstName']
+                : '',
+            style: TextStyle(
+              color: Theme.of(context).primaryColor,
+              fontWeight: FontWeight.w600,
+              fontSize: 22,
+            ),
+          ),
+        ],
       ),
     );
   }

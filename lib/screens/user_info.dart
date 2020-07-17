@@ -17,8 +17,13 @@ class UserInfoFormPage extends StatefulWidget {
 
   // if edit mode
   final bool isEdit;
+  final bool selfEdit;
 
-  UserInfoFormPage({@required this.relationship, this.isEdit = false});
+  UserInfoFormPage({
+    this.relationship,
+    this.isEdit = false,
+    this.selfEdit = false,
+  });
 
   @override
   _UserInfoFormPageState createState() => _UserInfoFormPageState();
@@ -57,11 +62,13 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
   var lastNameController = TextEditingController();
   var fatherNameController = TextEditingController();
   var motherNameController = TextEditingController();
+  var oldSurnameController = TextEditingController();
   var birthDateController = TextEditingController();
   var birthPlaceController = TextEditingController();
   var notesController = TextEditingController();
   Gender gender = Gender.male;
   bool isAlive = true;
+  bool isMarried = false;
   var aniversaryDateController = TextEditingController();
   var deathDateController = TextEditingController();
   var bloodGroupController = TextEditingController();
@@ -96,22 +103,62 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
   @override
   void initState() {
     super.initState();
+    if ((widget.relationship != null) && !widget.isEdit) {
+      _helpPatchTextFields();
+    }
     if (widget.isEdit) {
       _getMemberInfo();
+    } else {
+      // assign gender automatically
+
+      if (widget.relationship != null && widget.relationship == 'Father' ||
+          widget.relationship.toString().indexOf('Brother') != -1 ||
+          widget.relationship.toString().indexOf('Son') != -1) {
+        setState(() {
+          gender = Gender.male;
+        });
+      } else {
+        setState(() {
+          gender = Gender.female;
+          print('Assigned gender');
+        });
+      }
+
+      // assign marital status automatically based on relationship
+      if (widget.relationship == 'Father' ||
+          widget.relationship == 'Mother' ||
+          widget.relationship == 'Wife') {
+        setState(() {
+          isMarried = true;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     tabController = TabController(length: tabs.length, vsync: this);
-
+    String relation = widget.relationship ?? '';
+    if (relation.indexOf('Brother') != -1) {
+      relation = 'Brother';
+    }
+    if (relation.indexOf('Sister') != -1) {
+      relation = 'Sister';
+    }
+    if (relation.indexOf('Son') != -1) {
+      relation = 'Son';
+    }
+    if (relation.indexOf('Daughter') != -1) {
+      relation = 'Daughter';
+    }
     return SafeArea(
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title:
-              Text('${widget.isEdit ? 'View' : 'Add'} ${widget.relationship}'),
+          title: !widget.selfEdit
+              ? Text('${widget.isEdit ? 'View' : 'Add'} $relation')
+              : Text('Edit Profile'),
         ),
         body: Column(
           children: [
@@ -173,27 +220,18 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
-                  labelText: 'First Name', controller: firstNameController),
+                labelText: 'First Name',
+                controller: firstNameController,
+                isInlineBorder: true,
+                isRequired: true,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
                 labelText: 'Middle Name',
                 controller: middleNameController,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: InputFormField(
-                labelText: 'Last Name',
-                controller: lastNameController,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: InputFormField(
-                labelText: 'Father\'s Name',
-                controller: fatherNameController,
+                isInlineBorder: true,
                 isRequired: true,
               ),
             ),
@@ -202,14 +240,125 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
               child: InputFormField(
                 labelText: 'Mother\'s Name',
                 controller: motherNameController,
+                isInlineBorder: true,
                 isRequired: true,
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                labelText: 'Last Name',
+                controller: lastNameController,
+                isInlineBorder: true,
+                isRequired: true,
+              ),
+            ),
+            if (widget.relationship == null && widget.selfEdit)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'Gender',
+                  style: Theme.of(context).textTheme.subtitle1.copyWith(
+                        fontSize: 22,
+                      ),
+                ),
+              ),
+            if (widget.relationship == null && widget.selfEdit)
+              Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ListView(
+                    primary: false,
+                    shrinkWrap: true,
+                    children: [
+                      RadioListTile(
+                        groupValue: gender,
+                        onChanged: (_) {
+                          setState(() {
+                            gender = _;
+                          });
+                        },
+                        title: Text("Male"),
+                        value: Gender.male,
+                      ),
+                      RadioListTile(
+                        groupValue: gender,
+                        onChanged: (_) {
+                          setState(() {
+                            gender = _;
+                          });
+                        },
+                        title: Text("Female"),
+                        value: Gender.female,
+                      ),
+                      // RadioListTile(
+                      //   groupValue: gender,
+                      //   onChanged: (_) {
+                      //     setState(() {
+                      //       gender = _;
+                      //     });
+                      //   },
+                      //   title: Text("Other"),
+                      //   value: Gender.other,
+                      // ),
+                    ],
+                  )),
+            if (widget.selfEdit ||
+                (widget.relationship != null &&
+                    widget.relationship != 'Mother' &&
+                    widget.relationship != 'Wife' &&
+                    widget.relationship != 'Father'))
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Flexible(
+                        child: Text(
+                      'Married ?',
+                      style: Theme.of(context)
+                          .textTheme
+                          .subtitle1
+                          .copyWith(fontSize: 22),
+                    )),
+                    Flexible(
+                      child: Switch(
+                        onChanged: _onChangeIsMarried,
+                        value: isMarried,
+                        activeColor: Theme.of(context).accentColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if ((widget.selfEdit && (gender == Gender.female && isMarried)) ||
+                (gender == Gender.female && isMarried))
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: InputFormField(
+                  labelText: 'Father\'s Name',
+                  controller: fatherNameController,
+                  isInlineBorder: true,
+                  isRequired: true,
+                ),
+              ),
+            if ((widget.selfEdit && gender == Gender.female && isMarried) ||
+                (gender == Gender.female && isMarried))
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: InputFormField(
+                  labelText: 'Old Surname',
+                  controller: oldSurnameController,
+                  isInlineBorder: true,
+                  isRequired: true,
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: InputFormField(
                 labelText: 'Date of Birth',
                 controller: birthDateController,
+                isInlineBorder: true,
                 suffixWidget: Icon(
                   Icons.date_range,
                   color: Theme.of(context).primaryColor,
@@ -219,7 +368,6 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
                   _onTapInput(birthDateController);
                 },
                 isDisabled: true,
-                isRequired: true,
                 // onTapFunction: _onTapInput(),
               ),
             ),
@@ -228,66 +376,13 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
               child: InputFormField(
                 labelText: 'Place of Birth',
                 controller: birthPlaceController,
+                isInlineBorder: true,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: InputFormField(
-                labelText: 'Notes',
-                isMultiline: true,
-                controller: notesController,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'Gender',
-                style: Theme.of(context).textTheme.subtitle1.copyWith(
-                      fontSize: 22,
-                    ),
-              ),
-            ),
-            Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListView(
-                  primary: false,
-                  shrinkWrap: true,
-                  children: [
-                    RadioListTile(
-                      groupValue: gender,
-                      onChanged: (_) {
-                        setState(() {
-                          gender = _;
-                        });
-                      },
-                      title: Text("Male"),
-                      value: Gender.male,
-                    ),
-                    RadioListTile(
-                      groupValue: gender,
-                      onChanged: (_) {
-                        setState(() {
-                          gender = _;
-                        });
-                      },
-                      title: Text("Female"),
-                      value: Gender.female,
-                    ),
-                    // RadioListTile(
-                    //   groupValue: gender,
-                    //   onChanged: (_) {
-                    //     setState(() {
-                    //       gender = _;
-                    //     });
-                    //   },
-                    //   title: Text("Other"),
-                    //   value: Gender.other,
-                    // ),
-                  ],
-                )),
-            Divider(
-              color: Colors.grey,
-            ),
+            // commenting gender
+            // Divider(
+            //   color: Colors.grey,
+            // ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
@@ -317,7 +412,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
                 child: InputFormField(
                   labelText: 'Death Date',
                   controller: deathDateController,
-                  isRequired: true,
+                  isInlineBorder: true,
                   isDate: true,
                   isDisabled: true,
                   suffixWidget: Icon(
@@ -329,29 +424,42 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
                   },
                 ),
               ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: InputFormField(
-                labelText: 'Anniversary Date',
-                controller: aniversaryDateController,
-                suffixWidget: Icon(
-                  Icons.date_range,
-                  color: Theme.of(context).primaryColor,
+            if (isMarried)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: InputFormField(
+                  labelText: 'Anniversary Date',
+                  isInlineBorder: true,
+                  controller: aniversaryDateController,
+                  suffixWidget: Icon(
+                    Icons.date_range,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  isDate: true,
+                  isDisabled: true,
+                  onTapFunction: () {
+                    _onTapInput(aniversaryDateController);
+                  },
                 ),
-                isDate: true,
-                isDisabled: true,
-                onTapFunction: () {
-                  _onTapInput(aniversaryDateController);
-                },
               ),
-            ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
                 labelText: 'Blood Group',
+                isInlineBorder: true,
                 controller: bloodGroupController,
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: InputFormField(
+                labelText: 'Notes',
+                isMultiline: true,
+                controller: notesController,
+                isInlineBorder: true,
+              ),
+            ),
+
             Center(
               child: Container(
                 child: FlatButton(
@@ -391,6 +499,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'Permanant Address',
                 isMultiline: true,
                 controller: permanentAddressController,
@@ -400,6 +509,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'Current Address',
                 isMultiline: true,
                 controller: currentAddressController,
@@ -409,6 +519,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'Phone Number',
                 controller: phoneNumberController,
                 keyboardType: TextInputType.phone,
@@ -417,6 +528,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'Mobile Number',
                 controller: contactController,
                 keyboardType: TextInputType.phone,
@@ -425,6 +537,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'Personal Email ID',
                 controller: personalEmailController,
                 keyboardType: TextInputType.emailAddress,
@@ -433,6 +546,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'Facebook Profile URL',
                 controller: facebookProfileUrlController,
                 keyboardType: TextInputType.url,
@@ -445,6 +559,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'Linkedin Profile URL',
                 controller: linkdenProfileUrlController,
                 keyboardType: TextInputType.url,
@@ -514,6 +629,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'Qualification',
                 controller: qualificationController,
               ),
@@ -521,6 +637,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'University',
                 controller: universityController,
               ),
@@ -528,6 +645,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'School',
                 controller: schoolController,
               ),
@@ -535,6 +653,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'Grant',
                 controller: grantController,
               ),
@@ -578,6 +697,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'Company Name',
                 controller: companyNameController,
               ),
@@ -585,6 +705,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'Service line',
                 controller: serviceLineController,
               ),
@@ -592,6 +713,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'Office Email',
                 controller: officeEmailController,
                 keyboardType: TextInputType.emailAddress,
@@ -600,6 +722,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'Other Details',
                 controller: otherDetailsController,
                 isMultiline: true,
@@ -645,6 +768,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'Hobbies',
                 controller: hobbiesController,
                 isMultiline: true,
@@ -653,6 +777,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'Personal Interest',
                 controller: personalInterestController,
                 isMultiline: true,
@@ -661,6 +786,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'Special Awards',
                 controller: specialAwardsController,
                 isMultiline: true,
@@ -669,6 +795,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InputFormField(
+                isInlineBorder: true,
                 labelText: 'Social Interest & Involvement',
                 controller: sociaInterestController,
                 isMultiline: true,
@@ -725,9 +852,9 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
         aniversaryDateController.text = df.format(value);
       }
 
-      if (controller == birthDateController) {
-        birthDate = value;
-        birthDateController.text = df.format(value);
+      if (controller == deathDateController) {
+        deathDate = value;
+        deathDateController.text = df.format(value);
       }
     });
   }
@@ -752,13 +879,23 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
         var userId = (await auth.currentUser()).uid;
 
         // upload image
-        String profileImageUrl;
+        // String profileImageUrl;
         if (profileImage != null) {
-          var storageRef = FirebaseStorage.instance
-              .ref()
-              .child('added-members')
-              .child(userId)
-              .child(widget.relationship + '.jpg');
+          var storageRef;
+
+          if (widget.selfEdit) {
+            storageRef = FirebaseStorage.instance
+                .ref()
+                .child('user_profile')
+                .child(userId + '.jpg');
+          } else {
+            storageRef = FirebaseStorage.instance
+                .ref()
+                .child('added-members')
+                .child(userId)
+                .child(widget.relationship + '.jpg');
+          }
+
           await storageRef.putFile(profileImage).onComplete;
           profileImageUrl = await storageRef.getDownloadURL();
         }
@@ -767,6 +904,10 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             .document('users/$userId/addedMembers/${widget.relationship}')
             .get());
 
+        if (widget.selfEdit) {
+          docRef = (await db.document('users/$userId').get());
+        }
+
         var infoData = {
           'relation': widget.relationship,
           'firstName': firstNameController.text.trim() ?? '',
@@ -774,12 +915,14 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
           'lastName': lastNameController.text.trim() ?? '',
           'fatherName': fatherNameController.text.trim() ?? '',
           'motherName': motherNameController.text.trim() ?? '',
+          'oldSurname': oldSurnameController.text.trim() ?? '',
           'dateOfBirth': birthDate ?? '',
           'birthPlace': birthPlaceController.text.trim() ?? '',
           'notes': notesController.text.trim() ?? '',
           'gender': selectedGender,
           'isAlive': isAlive,
           'deathDate': deathDate ?? '',
+          'isMarried': isMarried,
           'aniversarryDate': aniversaryDate ?? '',
           'bloodGroup': bloodGroupController.text.trim() ?? '',
           'profileImageUrl': profileImageUrl != null
@@ -796,9 +939,13 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             'whenCreated': Timestamp.now(),
           });
         } else {
-          await db
-              .document('users/$userId/addedMembers/${widget.relationship}')
-              .updateData(infoData);
+          if (widget.selfEdit) {
+            await db.document('users/$userId').updateData(infoData);
+          } else {
+            await db
+                .document('users/$userId/addedMembers/${widget.relationship}')
+                .updateData(infoData);
+          }
         }
 
         _hideShowLoader(false);
@@ -834,6 +981,10 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             .document('users/$userId/addedMembers/${widget.relationship}')
             .get());
 
+        if (widget.selfEdit) {
+          docRef = (await db.document('users/$userId').get());
+        }
+
         var infoData = {
           'permanentAddress': permanentAddressController.text.trim() ?? '',
           'currentAddress': currentAddressController.text.trim() ?? '',
@@ -853,9 +1004,13 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             'whenCreated': Timestamp.now(),
           });
         } else {
-          await db
-              .document('users/$userId/addedMembers/${widget.relationship}')
-              .updateData(infoData);
+          if (widget.selfEdit) {
+            await db.document('users/$userId').updateData(infoData);
+          } else {
+            await db
+                .document('users/$userId/addedMembers/${widget.relationship}')
+                .updateData(infoData);
+          }
         }
 
         _hideShowLoader(false);
@@ -890,6 +1045,10 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             .document('users/$userId/addedMembers/${widget.relationship}')
             .get());
 
+        if (widget.selfEdit) {
+          docRef = (await db.document('users/$userId').get());
+        }
+
         var educationData = {
           'qualification': qualificationController.text.trim() ?? '',
           'university': universityController.text.trim() ?? '',
@@ -906,9 +1065,13 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             'whenCreated': Timestamp.now(),
           });
         } else {
-          await db
-              .document('users/$userId/addedMembers/${widget.relationship}')
-              .updateData(educationData);
+          if (widget.selfEdit) {
+            await db.document('users/$userId').updateData(educationData);
+          } else {
+            await db
+                .document('users/$userId/addedMembers/${widget.relationship}')
+                .updateData(educationData);
+          }
         }
 
         _hideShowLoader(false);
@@ -943,6 +1106,10 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             .document('users/$userId/addedMembers/${widget.relationship}')
             .get());
 
+        if (widget.selfEdit) {
+          docRef = (await db.document('users/$userId').get());
+        }
+
         var occupationData = {
           'companyName': companyNameController.text.trim() ?? '',
           'serviceLine': serviceLineController.text.trim() ?? '',
@@ -959,9 +1126,13 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             'whenCreated': Timestamp.now(),
           });
         } else {
-          await db
-              .document('users/$userId/addedMembers/${widget.relationship}')
-              .updateData(occupationData);
+          if (widget.selfEdit) {
+            await db.document('users/$userId').updateData(occupationData);
+          } else {
+            await db
+                .document('users/$userId/addedMembers/${widget.relationship}')
+                .updateData(occupationData);
+          }
         }
 
         _hideShowLoader(false);
@@ -996,6 +1167,10 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             .document('users/$userId/addedMembers/${widget.relationship}')
             .get());
 
+        if (widget.selfEdit) {
+          docRef = (await db.document('users/$userId').get());
+        }
+
         var otherData = {
           'hobbies': hobbiesController.text.trim() ?? '',
           'personalInterests': personalInterestController.text.trim() ?? '',
@@ -1012,9 +1187,13 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             'whenCreated': Timestamp.now(),
           });
         } else {
-          await db
-              .document('users/$userId/addedMembers/${widget.relationship}')
-              .updateData(otherData);
+          if (widget.selfEdit) {
+            await db.document('users/$userId').updateData(otherData);
+          } else {
+            await db
+                .document('users/$userId/addedMembers/${widget.relationship}')
+                .updateData(otherData);
+          }
         }
 
         _hideShowLoader(false);
@@ -1068,14 +1247,54 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
       try {
         _hideShowLoader(true);
         var userId = (await FirebaseAuth.instance.currentUser()).uid;
-        var userRef = (await Firestore.instance
-            .document('users/$userId/addedMembers/${widget.relationship}')
-            .get());
+
+        DocumentSnapshot userRef;
+
+        if (widget.selfEdit) {
+          userRef = (await Firestore.instance.document('users/$userId').get());
+        } else {
+          userRef = (await Firestore.instance
+              .document('users/$userId/addedMembers/${widget.relationship}')
+              .get());
+        }
 
         Map<String, dynamic> userData = Map<String, dynamic>();
         if (userRef.exists) {
           userData = userRef.data;
+
+          // assign marital status automatically
+          if (userData['isMarried'] != null && userData['isMarried']) {
+            setState(() {
+              isMarried = userData['isMarried'];
+            });
+          }
+        } else {
+          // assign gender automatically
+
+          if (widget.relationship == 'Father' ||
+              widget.relationship == 'Brother' ||
+              widget.relationship == 'Son') {
+            setState(() {
+              gender = Gender.male;
+            });
+          } else {
+            setState(() {
+              gender = Gender.female;
+              print('Assigned gender');
+            });
+          }
+
+          // assign marital status automatically based on relationship
+          if (widget.relationship == 'Father' ||
+              widget.relationship == 'Mother' ||
+              widget.relationship == 'Wife') {
+            setState(() {
+              isMarried = true;
+            });
+          }
         }
+
+        print(userData.toString());
 
         if (userData != null) {
           setState(() {
@@ -1085,6 +1304,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             lastNameController.text = userData['lastName'] ?? '';
             fatherNameController.text = userData['fatherName'] ?? '';
             motherNameController.text = userData['motherName'] ?? '';
+            oldSurnameController.text = userData['oldSurname'] ?? '';
             birthDateController.text = (userData['dateOfBirth'] != null &&
                     userData['dateOfBirth'] != '')
                 ? '${df.format(userData['dateOfBirth'].toDate()).toString()}'
@@ -1156,6 +1376,158 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
         print(err.toString());
         _hideShowLoader(false);
       }
+    });
+  }
+
+  // help patch text fields
+  _helpPatchTextFields() {
+    try {
+      if (widget.relationship == null) {
+        return;
+      }
+
+      final db = Firestore.instance;
+
+      Future.delayed(Duration.zero, () async {
+        _hideShowLoader(true);
+
+        // get current user info
+        String userId = (await FirebaseAuth.instance.currentUser()).uid;
+
+        var userRef = (await db.document('users/$userId').get());
+
+        var userData = {"id": userRef.documentID, ...userRef.data};
+
+        String switchCaseString = widget.relationship;
+
+        if (switchCaseString.indexOf('Sister') != -1) {
+          switchCaseString = 'Sister';
+        }
+
+        if (switchCaseString.indexOf('Brother') != -1) {
+          switchCaseString = 'Brother';
+        }
+
+        if (switchCaseString.indexOf('Son') != -1) {
+          switchCaseString = 'Son';
+        }
+
+        if (switchCaseString.indexOf('Daughter') != -1) {
+          switchCaseString = 'Daughter';
+        }
+
+        switch (switchCaseString) {
+          case 'Wife':
+            setState(() {
+              middleNameController.text = userData['firstName'] ?? '';
+              lastNameController.text = userData['lastName'] ?? '';
+              aniversaryDate = (userData['aniversaryDate'] != null &&
+                      userData['aniversaryDate'] != '')
+                  ? userData['aniversaryDate'].toDate()
+                  : null ?? null;
+              aniversaryDateController.text = (userData['aniversarryDate'] !=
+                          null &&
+                      userData['aniversarryDate'] != '')
+                  ? '${df.format(userData['aniversarryDate'].toDate()).toString()}'
+                  : '' ?? '';
+            });
+
+            break;
+          case 'Brother':
+            setState(() {
+              middleNameController.text = userData['middleName'] ?? '';
+              lastNameController.text = userData['lastName'] ?? '';
+            });
+
+            break;
+          case 'Sister':
+            setState(() {
+              middleNameController.text = userData['middleName'] ?? '';
+              lastNameController.text = userData['lastName'] ?? '';
+            });
+
+            break;
+          case 'Mother':
+            setState(() {
+              middleNameController.text = userData['middleName'] ?? '';
+              lastNameController.text = userData['lastName'] ?? '';
+            });
+
+            // check if father's docs exists
+            var docRef =
+                (await db.document('users/$userId/addedMembers/Father').get());
+
+            if (docRef.exists) {
+              var docData = docRef.data;
+              setState(() {
+                aniversaryDate = (docData['aniversaryDate'] != null &&
+                        docData['aniversaryDate'] != '')
+                    ? docData['aniversaryDate'].toDate()
+                    : null ?? null;
+                aniversaryDateController.text = (docData['aniversarryDate'] !=
+                            null &&
+                        docData['aniversarryDate'] != '')
+                    ? '${df.format(docData['aniversarryDate'].toDate()).toString()}'
+                    : '' ?? '';
+              });
+            }
+
+            break;
+          case 'Father':
+            setState(() {
+              firstNameController.text = userData['middleName'] ?? '';
+              lastNameController.text = userData['lastName'] ?? '';
+            });
+
+            // check if mother's docs exists
+            var docRef =
+                (await db.document('users/$userId/addedMembers/Mother').get());
+
+            if (docRef.exists) {
+              var docData = docRef.data;
+              setState(() {
+                aniversaryDate = (docData['aniversaryDate'] != null &&
+                        docData['aniversaryDate'] != '')
+                    ? docData['aniversaryDate'].toDate()
+                    : null ?? null;
+                aniversaryDateController.text = (docData['aniversarryDate'] !=
+                            null &&
+                        docData['aniversarryDate'] != '')
+                    ? '${df.format(docData['aniversarryDate'].toDate()).toString()}'
+                    : '' ?? '';
+              });
+            }
+
+            break;
+          case 'Son':
+            setState(() {
+              middleNameController.text = userData['firstName'] ?? '';
+              lastNameController.text = userData['lastName'] ?? '';
+            });
+
+            break;
+          case 'Daughter':
+            setState(() {
+              middleNameController.text = userData['firstName'] ?? '';
+              lastNameController.text = userData['lastName'] ?? '';
+            });
+
+            break;
+          default:
+            break;
+        }
+
+        _hideShowLoader(false);
+      });
+    } catch (err) {
+      print(err.toString());
+      print('Error help patching text fields');
+    }
+  }
+
+  _onChangeIsMarried(bool value) {
+    setState(() {
+      isMarried = value;
     });
   }
 }

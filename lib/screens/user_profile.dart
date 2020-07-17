@@ -1,4 +1,5 @@
 import 'package:Ashvatth/services/user_service.dart';
+import 'package:Ashvatth/widgets/tree.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:flutter/material.dart';
@@ -6,14 +7,17 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-
+import 'package:flutter/cupertino.dart';
+import './user_info.dart';
 import 'dart:async';
 import 'dart:ui' as ui;
+import 'package:intl/intl.dart';
 
 class UserProfile extends StatefulWidget {
   final String username;
+  final String relationPath;
 
-  UserProfile({this.username});
+  UserProfile({this.username, this.relationPath});
 
   @override
   _UserProfileState createState() => _UserProfileState();
@@ -22,8 +26,9 @@ class UserProfile extends StatefulWidget {
 class _UserProfileState extends State<UserProfile> {
   var _userService = UserService();
   var userDataFuture = UserService().getCurrentUserData();
+  DateFormat df = DateFormat('dd/MM/yyyy');
   final List<String> profileTabList = [
-    'Tree',
+    // 'Tree',
     'Info',
     'Contact',
     'Education',
@@ -40,72 +45,118 @@ class _UserProfileState extends State<UserProfile> {
     if (widget.username != null) {
       userDataFuture = UserService().getUserByUsername(widget.username);
     }
+    if (widget.relationPath != null) {
+      setState(() {
+        profileTabList.remove('Tree');
+      });
+      userDataFuture =
+          UserService().getUserMemberDataByPath(widget.relationPath);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-        body: FutureBuilder<dynamic>(
-            future: userDataFuture,
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Center(
-                  child: Text('Some error occured, try again later'),
-                );
-              }
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(
+      child: FutureBuilder<dynamic>(
+        future: userDataFuture,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Some error occured, try again later'),
+            );
+          }
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return Scaffold(
+                body: Center(
                   child: CircularProgressIndicator(),
-                );
-              }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  _backbutton(
-                    snapshot.data['firstName'],
-                    snapshot.data['lastName'],
-                  ),
-                  _profileImage(
-                    snapshot.data['profileImageUrl'],
-                    snapshot.data['firstName'],
-                    snapshot.data['lastName'],
-                  ),
-                  _tabList(),
-                  SizedBox(height: 8),
-                  Divider(
-                    color: Color(0xff8d6e52),
-                    thickness: 1,
-                  ),
-                  if (_selectedTab == 'Info')
-                    Expanded(
-                      child: _infoTabContent(),
-                    ),
-                  if (_selectedTab == 'Tree')
-                    Expanded(
-                      child: _treeTabContent(
-                          userId: snapshot.data['id'],
-                          isMarried: snapshot.data['isMarried']),
-                    ),
-                  if (_selectedTab == 'Contact')
-                    Expanded(
-                      child: _contactTabContent(),
-                    ),
-                  if (_selectedTab == 'Education')
-                    Expanded(
-                      child: _educationTabContent(),
-                    ),
-                  if (_selectedTab == 'Occupation')
-                    Expanded(
-                      child: _occupationTabContent(),
-                    ),
-                  if (_selectedTab == 'Other')
-                    Expanded(
-                      child: _otherTabContent(),
-                    ),
-                ],
+                ),
               );
-            }),
+            default:
+              return Scaffold(
+                body: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    _backbutton(
+                      snapshot.data['firstName'],
+                      snapshot.data['lastName'],
+                    ),
+                    _profileImage(
+                      snapshot.data['profileImageUrl'],
+                      snapshot.data['firstName'],
+                      snapshot.data['lastName'],
+                    ),
+                    _tabList(),
+                    SizedBox(height: 8),
+                    Divider(
+                      color: Color(0xff8d6e52),
+                      thickness: 1,
+                    ),
+                    if (_selectedTab == 'Info')
+                      Expanded(
+                        child: _infoTabContent(snapshot.data),
+                      ),
+                    if (_selectedTab == 'Tree')
+                      Expanded(
+                        child: _treeTabContent(
+                            userId: snapshot.data['id'],
+                            isMarried: snapshot.data['isMarried']),
+                      ),
+                    if (_selectedTab == 'Contact')
+                      Expanded(
+                        child: _contactTabContent(snapshot.data),
+                      ),
+                    if (_selectedTab == 'Education')
+                      Expanded(
+                        child: _educationTabContent(snapshot.data),
+                      ),
+                    if (_selectedTab == 'Occupation')
+                      Expanded(
+                        child: _occupationTabContent(snapshot.data),
+                      ),
+                    if (_selectedTab == 'Other')
+                      Expanded(
+                        child: _otherTabContent(snapshot.data),
+                      ),
+                  ],
+                ),
+                floatingActionButton: FloatingActionButton(
+                  child: Icon(
+                    FontAwesomeIcons.tree,
+                    color: (snapshot.data['matchUserId'] != null)
+                        ? Theme.of(context).accentColor
+                        : Colors.white,
+                    size: 30,
+                  ),
+                  backgroundColor: (snapshot.data['matchUserId'] != null)
+                      ? Color(0xfff0cc8d)
+                      : Colors.grey,
+                  onPressed: (snapshot.data['matchUserId'] != null)
+                      ? () {
+                          Navigator.of(context).push(
+                            CupertinoPageRoute(
+                              builder: (ctx) => Tree(
+                                selfTree: false,
+                                userId: snapshot.data['matchUserId'],
+                              ),
+                            ),
+                          );
+                        }
+                      : () {
+                          Navigator.of(context).push(
+                            CupertinoPageRoute(
+                              builder: (ctx) => Tree(
+                                selfTree: false,
+                                isNonUserTree: true,
+                                nonUserData: snapshot.data,
+                              ),
+                            ),
+                          );
+                        },
+                ),
+              );
+          }
+        },
       ),
     );
   }
@@ -121,57 +172,73 @@ class _UserProfileState extends State<UserProfile> {
           color: Color(0xff8d6e52),
         ),
       ),
-      IconButton(
-        icon: Icon(FontAwesomeIcons.qrcode, size: 28),
-        onPressed: () {
-          final key = encrypt.Key.fromLength(32);
-          final iv = encrypt.IV.fromLength(8);
-          final encrypter = encrypt.Encrypter(encrypt.Salsa20(key));
+      // IconButton(
+      //   icon: Icon(FontAwesomeIcons.qrcode, size: 28),
+      //   onPressed: () {
+      //     final key = encrypt.Key.fromLength(32);
+      //     final iv = encrypt.IV.fromLength(8);
+      //     final encrypter = encrypt.Encrypter(encrypt.Salsa20(key));
 
-          final encrypted = encrypter.encrypt('plainText', iv: iv);
-          // final decrypted = encrypter.decrypt(encrypted, iv: iv);
-          showDialog(
-              context: context,
-              builder: (context) {
-                return Dialog(
-                  child: FittedBox(
-                    child: Container(
-                      margin: EdgeInsets.all(8),
-                      child: Column(
-                        children: [
-                          CustomPaint(
-                            size: Size.square(280),
-                            painter: QrPainter(
-                              data: encrypted.base64,
-                              version: QrVersions.auto,
-                              // size: 320.0,
-                              color: Colors.brown,
-                              embeddedImageStyle: QrEmbeddedImageStyle(
-                                size: Size.square(60),
-                              ),
-                            ),
-                          ),
-                          Text('$firstName $lastName',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headline1
-                                  .copyWith(fontSize: 21)),
-                          Text(
-                            'Scan this QR code to send relationship request',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyText1
-                                .copyWith(fontSize: 18),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              });
-        },
-        color: Color(0xff8d6e52),
-      ),
+      //     final encrypted = encrypter.encrypt('plainText', iv: iv);
+      //     // final decrypted = encrypter.decrypt(encrypted, iv: iv);
+      //     showDialog(
+      //         context: context,
+      //         builder: (context) {
+      //           return Dialog(
+      //             child: FittedBox(
+      //               child: Container(
+      //                 margin: EdgeInsets.all(8),
+      //                 child: Column(
+      //                   children: [
+      //                     CustomPaint(
+      //                       size: Size.square(280),
+      //                       painter: QrPainter(
+      //                         data: encrypted.base64,
+      //                         version: QrVersions.auto,
+      //                         // size: 320.0,
+      //                         color: Colors.brown,
+      //                         embeddedImageStyle: QrEmbeddedImageStyle(
+      //                           size: Size.square(60),
+      //                         ),
+      //                       ),
+      //                     ),
+      //                     Text('$firstName $lastName',
+      //                         style: Theme.of(context)
+      //                             .textTheme
+      //                             .headline1
+      //                             .copyWith(fontSize: 21)),
+      //                     Text(
+      //                       'Scan this QR code to send relationship request',
+      //                       style: Theme.of(context)
+      //                           .textTheme
+      //                           .bodyText1
+      //                           .copyWith(fontSize: 18),
+      //                     )
+      //                   ],
+      //                 ),
+      //               ),
+      //             ),
+      //           );
+      //         });
+      //   },
+      //   color: Color(0xff8d6e52),
+      // ),
+      if (widget.username == null && widget.relationPath == null)
+        IconButton(
+          icon: Icon(
+            Icons.edit,
+            size: 28,
+          ),
+          color: Color(0xff8d6e52),
+          onPressed: () {
+            Navigator.of(context).push(
+              CupertinoPageRoute(
+                builder: (ctx) =>
+                    UserInfoFormPage(isEdit: true, selfEdit: true),
+              ),
+            );
+          },
+        )
     ]);
   }
 
@@ -257,7 +324,7 @@ class _UserProfileState extends State<UserProfile> {
   }
 
   // INfo tab
-  Widget _infoTabContent() {
+  Widget _infoTabContent(dynamic userData) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -285,7 +352,10 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    '14-5-1996',
+                    (userData['dateOfBirth'] != null &&
+                            userData['dateOfBirth'] != '')
+                        ? '${df.format(userData['dateOfBirth'].toDate()).toString()}'
+                        : 'Not Available',
                     style: TextStyle(
                       fontSize: 22,
                       color: Theme.of(context).primaryColor,
@@ -312,7 +382,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    '24',
+                    '${(userData['dateOfBirth'] != null && userData['dateOfBirth'] != '') ? calculateAge(userData['dateOfBirth'].toDate()) : 'Not Available'}',
                     style: TextStyle(
                       fontSize: 22,
                       color: Theme.of(context).primaryColor,
@@ -321,6 +391,72 @@ class _UserProfileState extends State<UserProfile> {
                 ),
               ],
             ),
+
+            // Death Date
+            if (userData['isAlive'] != null &&
+                !userData['isAlive'] &&
+                userData['deathDate'] != null &&
+                userData['deathData'] != '')
+              TableRow(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Death Date',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      (userData['deathDate'] != null &&
+                              userData['deathDate'] != '')
+                          ? '${df.format(userData['deathDate'].toDate()).toString()}'
+                          : 'Not Available',
+                      style: TextStyle(
+                        fontSize: 22,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+            // anniversary  date
+            if ((widget.relationPath != null) ||
+                (userData['isMarried'] != null && userData['isMarried']))
+              TableRow(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Anniversary date',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      (userData['aniversarryDate'] != null &&
+                              userData['aniversarryDate'] != '')
+                          ? '${df.format(userData['aniversarryDate'].toDate()).toString()}'
+                          : 'Not Available',
+                      style: TextStyle(
+                        fontSize: 22,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
 
             // Notes
             TableRow(
@@ -339,7 +475,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'I am a Radio Jocket & Celebrity Interviewer. Hip Hop Journalist. Dilli Ka Sabse Family Launda',
+                    "${(userData['notes'] != null && userData['notes'] != '') ? userData['notes'] : 'Not Available'}",
                     style: TextStyle(
                       fontSize: 22,
                       color: Theme.of(context).primaryColor,
@@ -362,9 +498,9 @@ class _UserProfileState extends State<UserProfile> {
       children: <Widget>[
         Positioned(
           top: 48,
-          left: (MediaQuery.of(context).size.width / 2),
+          left: (MediaQuery.of(context).size.width / 2) - 3,
           child: Container(
-            height: isMarried ? 190 : 90,
+            height: isMarried ? 210 : 110,
             width: 2,
             color: Theme.of(context).accentColor,
           ),
@@ -388,7 +524,7 @@ class _UserProfileState extends State<UserProfile> {
                   }
                   List<dynamic> list = snapshot.data;
                   return (list != null && list.length > 0)
-                      ? _parentList(list: list)
+                      ? _parentList(list: list, userId: userId)
                       : Container();
                 },
               ),
@@ -409,7 +545,7 @@ class _UserProfileState extends State<UserProfile> {
                   }
                   List<dynamic> list = snapshot.data;
                   return (list != null && list.length > 0)
-                      ? _parentList(list: list, isParent: false)
+                      ? _parentList(list: list, isParent: false, userId: userId)
                       : Container();
                 },
               ),
@@ -431,7 +567,7 @@ class _UserProfileState extends State<UserProfile> {
                   List<dynamic> list = snapshot.data;
                   print(list.toString());
                   return (list != null && list.length > 0)
-                      ? _parentList(list: list, isParent: false)
+                      ? _parentList(list: list, isParent: false, userId: userId)
                       : Container();
                 },
               ),
@@ -443,7 +579,7 @@ class _UserProfileState extends State<UserProfile> {
   }
 
   // contact tab
-  Widget _contactTabContent() {
+  Widget _contactTabContent(dynamic userData) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -472,7 +608,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    '511, Powai Plaza, Hiranandani Business Park, Powai Mumbai-400076',
+                    "${(userData['permanentAddress'] != null && userData['permanentAddress'] != '') ? userData['permanentAddress'] : 'Not Available'}",
                     style: TextStyle(
                       fontSize: 22,
                       color: Theme.of(context).primaryColor,
@@ -500,7 +636,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    '511, Powai Plaza, Hiranandani Business Park, Powai Mumbai-400076',
+                    "${(userData['currentAddress'] != null && userData['currentAddress'] != '') ? userData['currentAddress'] : 'Not Available'}",
                     style: TextStyle(
                       fontSize: 22,
                       color: Theme.of(context).primaryColor,
@@ -528,11 +664,14 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    '0222570271',
+                    "${(userData['phone'] != null && userData['phone'] != '') ? userData['phone'] : 'Not Available'}",
                     style: TextStyle(
                       fontSize: 22,
                       color: Theme.of(context).primaryColor,
-                      decoration: TextDecoration.underline,
+                      decoration:
+                          (userData['phone'] != null && userData['phone'] != '')
+                              ? TextDecoration.underline
+                              : TextDecoration.none,
                       decorationColor: Theme.of(context).primaryColor,
                     ),
                     textAlign: TextAlign.justify,
@@ -558,11 +697,14 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    '7506307509',
+                    "${(userData['contact'] != null && userData['contact'] != '') ? userData['contact'] : 'Not Available'}",
                     style: TextStyle(
                       fontSize: 22,
                       color: Theme.of(context).primaryColor,
-                      decoration: TextDecoration.underline,
+                      decoration: (userData['contact'] != null &&
+                              userData['contact'] != '')
+                          ? TextDecoration.underline
+                          : TextDecoration.none,
                       decorationColor: Theme.of(context).primaryColor,
                     ),
                     textAlign: TextAlign.justify,
@@ -588,7 +730,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'thisismyemail@email.com',
+                    "${(userData['personalEmail'] != null && userData['personalEmail'] != '') ? userData['personalEmail'] : 'Not Available'}",
                     style: TextStyle(
                       fontSize: 22,
                       color: Theme.of(context).primaryColor,
@@ -607,7 +749,7 @@ class _UserProfileState extends State<UserProfile> {
   }
 
   // education tab
-  Widget _educationTabContent() {
+  Widget _educationTabContent(dynamic userData) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -636,7 +778,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'B.Sc. (I.T)',
+                    "${(userData['qualification'] != null && userData['qualification'] != '') ? userData['qualification'] : 'Not Available'}",
                     style: TextStyle(
                       fontSize: 22,
                       color: Theme.of(context).primaryColor,
@@ -664,7 +806,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'University of Mumbai',
+                    "${(userData['university'] != null && userData['university'] != '') ? userData['university'] : 'Not Available'}",
                     style: TextStyle(
                       fontSize: 22,
                       color: Theme.of(context).primaryColor,
@@ -692,7 +834,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Convent of Jesus & Mary',
+                    "${(userData['school'] != null && userData['school'] != '') ? userData['school'] : 'Not Available'}",
                     style: TextStyle(
                       fontSize: 22,
                       color: Theme.of(context).primaryColor,
@@ -720,7 +862,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur auctor viverra maximus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.',
+                    "${(userData['grant'] != null && userData['grant'] != '') ? userData['grant'] : 'Not Available'}",
                     style: TextStyle(
                       fontSize: 22,
                       color: Theme.of(context).primaryColor,
@@ -737,7 +879,7 @@ class _UserProfileState extends State<UserProfile> {
   }
 
   // occupation tab
-  Widget _occupationTabContent() {
+  Widget _occupationTabContent(dynamic userData) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -766,7 +908,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'LillieMountain',
+                    "${(userData['companyName'] != null && userData['companyName'] != '') ? userData['companyName'] : 'Not Available'}",
                     style: TextStyle(
                       fontSize: 22,
                       color: Theme.of(context).primaryColor,
@@ -794,7 +936,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Information Technology',
+                    "${(userData['serviceLine'] != null && userData['serviceLine'] != '') ? userData['serviceLine'] : 'Not Available'}",
                     style: TextStyle(
                       fontSize: 22,
                       color: Theme.of(context).primaryColor,
@@ -806,32 +948,32 @@ class _UserProfileState extends State<UserProfile> {
             ),
 
             // Contact number
-            TableRow(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'Contact',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    '7506307509',
-                    style: TextStyle(
-                      fontSize: 22,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    textAlign: TextAlign.justify,
-                  ),
-                ),
-              ],
-            ),
+            // TableRow(
+            //   children: [
+            //     Padding(
+            //       padding: const EdgeInsets.all(8.0),
+            //       child: Text(
+            //         'Contact',
+            //         style: TextStyle(
+            //           fontSize: 22,
+            //           fontWeight: FontWeight.w600,
+            //           color: Theme.of(context).primaryColor,
+            //         ),
+            //       ),
+            //     ),
+            //     Padding(
+            //       padding: const EdgeInsets.all(8.0),
+            //       child: Text(
+            //         "${(userData['serviceLine'] != null && userData['serviceLine'] != '') ? userData['serviceLine'] : 'Not Available'}",
+            //         style: TextStyle(
+            //           fontSize: 22,
+            //           color: Theme.of(context).primaryColor,
+            //         ),
+            //         textAlign: TextAlign.justify,
+            //       ),
+            //     ),
+            //   ],
+            // ),
 
             // Office Email
             TableRow(
@@ -850,7 +992,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'thisismyemail@mail.com',
+                    "${(userData['officeEmail'] != null && userData['officeEmail'] != '') ? userData['officeEmail'] : 'Not Available'}",
                     style: TextStyle(
                       fontSize: 22,
                       color: Theme.of(context).primaryColor,
@@ -880,7 +1022,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'LillieMountian is an agency founded by a trio of designer & developers in 2020. It is software and design agency that answers problems of businesses with their functional design and pragmatic software services.',
+                    "${(userData['otherDetails'] != null && userData['otherDetails'] != '') ? userData['otherDetails'] : 'Not Available'}",
                     style: TextStyle(
                       fontSize: 22,
                       color: Theme.of(context).primaryColor,
@@ -897,7 +1039,7 @@ class _UserProfileState extends State<UserProfile> {
   }
 
   // Other tab
-  Widget _otherTabContent() {
+  Widget _otherTabContent(dynamic userData) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -925,7 +1067,7 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'MMORG games ,hip-hop, sleeping',
+                    "${(userData['hobbies'] != null && userData['hobbies'] != '') ? userData['hobbies'] : 'Not Available'}",
                     style: TextStyle(
                       fontSize: 22,
                       color: Theme.of(context).primaryColor,
@@ -935,7 +1077,62 @@ class _UserProfileState extends State<UserProfile> {
               ],
             ),
 
-            // Social Interests
+            // personal Interests
+            TableRow(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Personal Interests:',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "${(userData['personalInterests'] != null && userData['personalInterests'] != '') ? userData['personalInterests'] : 'Not Available'}",
+                    style: TextStyle(
+                      fontSize: 22,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            // Awards
+            TableRow(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Special Awards',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "${(userData['specialAwards'] != null && userData['specialAwards'] != '') ? userData['specialAwards'] : 'Not Available'}",
+                    style: TextStyle(
+                      fontSize: 22,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    textAlign: TextAlign.justify,
+                  ),
+                ),
+              ],
+            ),
+
+            // social interests
             TableRow(
               children: [
                 Padding(
@@ -952,39 +1149,11 @@ class _UserProfileState extends State<UserProfile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Teaching, Dev Communities',
+                    "${(userData['socialInterests'] != null && userData['socialInterests'] != '') ? userData['socialInterests'] : 'Not Available'}",
                     style: TextStyle(
                       fontSize: 22,
                       color: Theme.of(context).primaryColor,
                     ),
-                  ),
-                ),
-              ],
-            ),
-
-            // About
-            TableRow(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'About',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'Over the years I\'ve accumulated knowledge about bringing business to the internet with since my initial freelancing years of 2015. I can help you understand what\'s great for your business when you want to start an e-commerce web/app. ',
-                    style: TextStyle(
-                      fontSize: 22,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    textAlign: TextAlign.justify,
                   ),
                 ),
               ],
@@ -1002,9 +1171,10 @@ class _UserProfileState extends State<UserProfile> {
     return completer.future;
   }
 
-  Widget _parentList({List<dynamic> list, bool isParent = true}) {
+  Widget _parentList(
+      {List<dynamic> list, bool isParent = true, @required String userId}) {
     return SizedBox(
-      height: 80,
+      height: 100,
       child: Stack(
         children: <Widget>[
           Positioned(
@@ -1018,29 +1188,71 @@ class _UserProfileState extends State<UserProfile> {
             scrollDirection: Axis.horizontal,
             shrinkWrap: true,
             itemBuilder: (ctx, i) {
-              return Container(
-                padding: const EdgeInsets.all(8),
-                margin: EdgeInsets.only(
-                    right: (list.length <= 2 && !isParent) ? 16 : 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-                child: Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: CachedNetworkImageProvider(
-                          list[i]['profileImageUrl'],
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  GestureDetector(
+                    onTap: list[i]['id'] != userId
+                        ? () {
+                            Navigator.of(context).push(CupertinoPageRoute(
+                                builder: (ctx) => UserProfile(
+                                      relationPath:
+                                          'users/$userId/addedMembers/${list[i]['relation']}',
+                                    )));
+                          }
+                        : null,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      margin: EdgeInsets.only(
+                          right: (list.length <= 2 && !isParent) ? 16 : 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Theme.of(context).primaryColor,
                         ),
-                        fit: BoxFit.fill,
-                      )),
-                ),
+                      ),
+                      child: Container(
+                        height: 50,
+                        width: 50,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: CachedNetworkImageProvider(
+                                list[i]['profileImageUrl'],
+                              ),
+                              fit: BoxFit.fill,
+                            )),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Text(
+                        '${list[i]['firstName']} ${(list[i]['lastName'])}',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Text(
+                        list[i]['relation'] != null
+                            ? '(${list[i]['relation']})'
+                            : '',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).accentColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               );
             },
             itemCount: list.length,
@@ -1048,5 +1260,23 @@ class _UserProfileState extends State<UserProfile> {
         ],
       ),
     );
+  }
+
+  // calc age
+  int calculateAge(DateTime birthDate) {
+    DateTime currentDate = DateTime.now();
+    int age = currentDate.year - birthDate.year;
+    int month1 = currentDate.month;
+    int month2 = birthDate.month;
+    if (month2 > month1) {
+      age--;
+    } else if (month1 == month2) {
+      int day1 = currentDate.day;
+      int day2 = birthDate.day;
+      if (day2 > day1) {
+        age--;
+      }
+    }
+    return age;
   }
 }
