@@ -117,7 +117,7 @@ class NotificationCard extends StatelessWidget {
                       color: Colors.red.withOpacity(0.4),
                       textColor: Theme.of(context).primaryColor,
                       child: Text(
-                        'Deny',
+                        'Remove',
                         style: Theme.of(context).textTheme.headline1.copyWith(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,

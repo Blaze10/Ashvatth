@@ -113,7 +113,8 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
 
       if (widget.relationship != null && widget.relationship == 'Father' ||
           widget.relationship.toString().indexOf('Brother') != -1 ||
-          widget.relationship.toString().indexOf('Son') != -1) {
+          widget.relationship.toString().indexOf('Son') != -1 ||
+          widget.relationship.toString().indexOf('Husband') != -1) {
         setState(() {
           gender = Gender.male;
         });
@@ -1273,7 +1274,8 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
 
           if (widget.relationship == 'Father' ||
               widget.relationship == 'Brother' ||
-              widget.relationship == 'Son') {
+              widget.relationship == 'Son' ||
+              widget.relationship == 'Husband') {
             setState(() {
               gender = Gender.male;
             });
@@ -1287,7 +1289,8 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
           // assign marital status automatically based on relationship
           if (widget.relationship == 'Father' ||
               widget.relationship == 'Mother' ||
-              widget.relationship == 'Wife') {
+              widget.relationship == 'Wife' ||
+              widget.relationship == 'Husband') {
             setState(() {
               isMarried = true;
             });

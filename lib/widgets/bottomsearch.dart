@@ -88,170 +88,189 @@ class _BottomSearchState extends State<BottomSearch> {
                 },
           child: Icon(Icons.person_add),
         ),
-        body: FutureBuilder<dynamic>(
-            future: userDataFuture,
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Center(
-                    child: Text('Some error occured, please try again later'));
-              }
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              }
-              return Container(
-                margin: EdgeInsets.all(8),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Color(0xff8d6e52),
-                              )),
-                          child: Container(
-                            height: MediaQuery.of(context).size.height * 0.11,
-                            width: MediaQuery.of(context).size.height * 0.11,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                image: CachedNetworkImageProvider(
-                                    snapshot.data['profileImageUrl']),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+        body: Column(
+          children: <Widget>[
+            if (showLoader) LinearProgressIndicator(),
+            Expanded(
+              child: FutureBuilder<dynamic>(
+                  future: userDataFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(
+                          child: Text(
+                              'Some error occured, please try again later'));
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    return Container(
+                      margin: EdgeInsets.all(8),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Select Relationship'),
-                              DropdownButton<String>(
-                                value: _selectedRelation,
-                                hint: Text('Relationship'),
-                                items: availableRalations.map((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    _selectedRelation = value;
-                                  });
-                                },
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Color(0xff8d6e52),
+                                    )),
+                                child: Container(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.11,
+                                  width:
+                                      MediaQuery.of(context).size.height * 0.11,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                      image: CachedNetworkImageProvider(
+                                          snapshot.data['profileImageUrl']),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
                               ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Select Relationship'),
+                                    DropdownButton<String>(
+                                      value: _selectedRelation,
+                                      hint: Text('Relationship'),
+                                      items: availableRalations
+                                          .map((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value),
+                                        );
+                                      }).toList(),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _selectedRelation = value;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              )
                             ],
                           ),
-                        )
-                      ],
-                    ),
-                    // Padding(
-                    //   padding: const EdgeInsets.all(8.0),
-                    //   child: Container(
-                    //     child: AutoCompleteTextField<String>(
-                    //       decoration: InputDecoration(
-                    //           hintText: "Search relatives:",
-                    //           suffixIcon: Icon(Icons.search)),
-                    //       itemSubmitted: (item) {
-                    //         Navigator.of(context).push(CupertinoPageRoute(
-                    //             builder: (ctx) => UserProfile(
-                    //                 username: item.trim().toLowerCase())));
-                    //       },
-                    //       key: key,
-                    //       suggestions: _userSuggesstionNameList,
-                    //       itemBuilder: (context, suggestion) => Padding(
-                    //           child: ListTile(
-                    //             title: Text(suggestion),
-                    //           ),
-                    //           padding: EdgeInsets.all(8.0)),
-                    //       itemSorter: (a, b) {
-                    //         return a.compareTo(b);
-                    //       },
-                    //       itemFilter: (suggestion, input) {
-                    //         if (!_userSuggesstionNameList.any((item) =>
-                    //             item.trim().toLowerCase() ==
-                    //             input.trim().toLowerCase())) {
-                    //           return false;
-                    //         }
+                          // Padding(
+                          //   padding: const EdgeInsets.all(8.0),
+                          //   child: Container(
+                          //     child: AutoCompleteTextField<String>(
+                          //       decoration: InputDecoration(
+                          //           hintText: "Search relatives :",
+                          //           suffixIcon: Icon(Icons.search)),
+                          //       itemSubmitted: (item) {
+                          //         Navigator.of(context).push(CupertinoPageRoute(
+                          //             builder: (ctx) => UserProfile(
+                          //                 username:
+                          //                     item.trim().toLowerCase())));
+                          //       },
+                          //       key: key,
+                          //       suggestions: _userSuggesstionNameList,
+                          //       itemBuilder: (context, suggestion) => Padding(
+                          //           child: ListTile(
+                          //             title: Text(suggestion),
+                          //           ),
+                          //           padding: EdgeInsets.all(8.0)),
+                          //       itemSorter: (a, b) {
+                          //         return a.compareTo(b);
+                          //       },
+                          //       itemFilter: (suggestion, input) {
+                          //         if (!_userSuggesstionNameList.any((item) =>
+                          //             item.trim().toLowerCase() ==
+                          //             input.trim().toLowerCase())) {
+                          //           return false;
+                          //         }
 
-                    //         return suggestion
-                    //             .toLowerCase()
-                    //             .startsWith(input.toLowerCase());
-                    //       },
-                    //     ),
-                    //   ),
-                    // ),
-                    Divider(
-                      color: Theme.of(context).accentColor,
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: FutureBuilder(
-                            future: addedMembersFuture,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasError) {
-                                print(snapshot.error.toString());
-                                return Center(
-                                  child: Text(
-                                      'Some error occured, please try again later'),
-                                );
-                              }
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
-                              List<Map<String, dynamic>> list = snapshot.data;
+                          //         return suggestion
+                          //             .toLowerCase()
+                          //             .startsWith(input.toLowerCase());
+                          //       },
+                          //     ),
+                          //   ),
+                          // ),
+                          Divider(
+                            color: Theme.of(context).accentColor,
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: FutureBuilder(
+                                  future: addedMembersFuture,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasError) {
+                                      print(snapshot.error.toString());
+                                      return Center(
+                                        child: Text(
+                                            'Some error occured, please try again later'),
+                                      );
+                                    }
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }
+                                    List<Map<String, dynamic>> list =
+                                        snapshot.data;
 
-                              return (list != null && list.length > 0)
-                                  ? ListView.builder(
-                                      shrinkWrap: true,
-                                      itemCount: list.length,
-                                      itemBuilder: (ctx, i) {
-                                        return Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 16.0),
-                                          child: NotificationCard(
-                                            imageUrl: list[i]
-                                                ['profileImageUrl'],
-                                            mainText: list[i]['relation'],
-                                            middleText: 'Added by you',
-                                            onConfirm: () {
-                                              _onViewAddedMember(
-                                                list[i]['relation'],
+                                    return (list != null && list.length > 0)
+                                        ? ListView.builder(
+                                            shrinkWrap: true,
+                                            itemCount: list.length,
+                                            itemBuilder: (ctx, i) {
+                                              return Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 16.0),
+                                                child: NotificationCard(
+                                                  imageUrl: list[i]
+                                                      ['profileImageUrl'],
+                                                  mainText: list[i]['relation'],
+                                                  middleText: 'Added by you',
+                                                  onConfirm: () {
+                                                    _onViewAddedMember(
+                                                      list[i]['relation'],
+                                                    );
+                                                  },
+                                                  showDelete: true,
+                                                  onDelete: () {
+                                                    _deleteMember(
+                                                        list[i]['relation']);
+                                                  },
+                                                  username: list[i]
+                                                          ['firstName'] +
+                                                      ' ' +
+                                                      list[i]['lastName'],
+                                                  confirmBtnText: 'Edit',
+                                                ),
                                               );
                                             },
-                                            username: list[i]['firstName'] +
-                                                ' ' +
-                                                list[i]['lastName'],
-                                            confirmBtnText: 'Edit',
-                                          ),
-                                        );
-                                      },
-                                    )
-                                  : Center(
-                                      child: Text(
-                                        'No members added',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline1,
-                                      ),
-                                    );
-                            }),
+                                          )
+                                        : Center(
+                                            child: Text(
+                                              'No members added',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headline1,
+                                            ),
+                                          );
+                                  }),
+                            ),
+                          )
+                        ],
                       ),
-                    )
-                  ],
-                ),
-              );
-            }));
+                    );
+                  }),
+            ),
+          ],
+        ));
   }
 
   String selected;
@@ -336,5 +355,27 @@ class _BottomSearchState extends State<BottomSearch> {
               relationship: relation,
               isEdit: true,
             )));
+  }
+
+  _deleteMember(String relation) async {
+    try {
+      showHideLoader(true);
+      if (relation == null) {
+        return;
+      }
+      var userId = (await FirebaseAuth.instance.currentUser()).uid;
+      await Firestore.instance
+          .document('users/$userId/addedMembers/$relation')
+          .delete();
+
+      setState(() {
+        addedMembersFuture = UserService().getAddedRelations();
+      });
+
+      showHideLoader(false);
+    } catch (err) {
+      print(err.toString());
+      return null;
+    }
   }
 }

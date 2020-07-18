@@ -710,7 +710,7 @@ class RelationsService {
                               .toString()
                               .indexOf(userData['middleName']) !=
                           -1 &&
-                      el['LastName'].toString().indexOf(userData['lastName']) !=
+                      el['lastName'].toString().indexOf(userData['lastName']) !=
                           -1) {
                     var exists = relationList.any((item) =>
                         (item['firstName'] == el['firstName'] &&
@@ -749,6 +749,9 @@ class RelationsService {
       {@required Map<String, dynamic> userData}) async {
     try {
       List<Map<String, dynamic>> relationList = [];
+      if (!userData['isMarried']) {
+        return null;
+      }
 
       var usersCollection = (await db.collection('users').getDocuments());
 
