@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo2.png"/>
+</p>
+
 # Ashvatth
 
 <em> Ashvatth is an application which creates one's family tree easily and automatically. It is a simple app yet its benefits are multiple. Ashvatth is a Sanskrit word for Peepal tree, also known as Bodhi Vriksha. ( A knowledge giving tree.) As the Ashvatth tree grows, it develops hundreds of branches. The app does the same. When a person registers his full name and info on the app it automatically connects him to his entire family or clan from his father's side as well as mother's side. As the members add up, the app automatically forms a family tree and fixes every member's position on the branch. Thus the information of a person's ancestors or descendants can be traced by him or other members. 
