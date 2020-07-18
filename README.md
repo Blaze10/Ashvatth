@@ -4,7 +4,7 @@
 Besides infotainment this app can weave an entrepreneurial network among family members and leads to the creation of a mini marketplace. Ashvatth acts as a storage where references, photographs, videos and memories can be stored securely. Health tracking, monitoring, consultation and quick response in an emergency  are some  future possible modules in the development. Everyone is interested to know and preserve their roots and family history. This app helps in the task by keeping every member in contact and strengthens the bonds of a family.</em>
 
 
-## Running the app
+### Running the app
 
 - <strong>Ashvatth</strong> is currenly not published on the play store and the app store. 
 
