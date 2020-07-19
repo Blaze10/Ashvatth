@@ -161,10 +161,44 @@ class UserService {
       }
 
       if (list.length > 0) {
-        return list;
+        for (var item in list) {
+          print('Innn, ${item.toString()}');
+          var collectionRef = (await _db
+              .collection('users')
+              .where('firstName', isEqualTo: item['firstName'])
+              .where('middleName', isEqualTo: item['middleName'])
+              .where('lastName', isEqualTo: item['lastName'])
+              .where('motherName', isEqualTo: item['motherName'])
+              .where('gender', isEqualTo: item['gender'])
+              .where('isMarried', isEqualTo: item['isMarried'])
+              .getDocuments());
+
+          if (collectionRef != null && collectionRef.documents.length > 0) {
+            var newData = {
+              "id": collectionRef.documents[0].documentID,
+              ...collectionRef.documents[0].data
+            };
+
+            var indx = list.indexWhere((item) =>
+                (item['firstName'] == newData['firstName'] &&
+                    item['lastName'] == newData['lastName'] &&
+                    item['middleName'] == newData['middleName'] &&
+                    item['motherName'] == newData['motherName'] &&
+                    item['gender'] == newData['gender'] &&
+                    item['isMarried'] == newData['isMarried']));
+
+            if (indx != -1) {
+              list[indx] = {
+                ...item,
+                "id": collectionRef.documents[0].documentID,
+                ...collectionRef.documents[0].data,
+              };
+            }
+          }
+        }
       }
 
-      return null;
+      return list;
     } catch (err) {
       print('Error getting users parent relations');
       print(err.toString());
@@ -199,6 +233,44 @@ class UserService {
         });
       }
 
+      if (list.length > 0) {
+        for (var item in list) {
+          print('Innn, ${item.toString()}');
+          var collectionRef = (await _db
+              .collection('users')
+              .where('firstName', isEqualTo: item['firstName'])
+              .where('middleName', isEqualTo: item['middleName'])
+              .where('lastName', isEqualTo: item['lastName'])
+              .where('motherName', isEqualTo: item['motherName'])
+              .where('gender', isEqualTo: item['gender'])
+              .where('isMarried', isEqualTo: item['isMarried'])
+              .getDocuments());
+
+          if (collectionRef != null && collectionRef.documents.length > 0) {
+            var newData = {
+              "id": collectionRef.documents[0].documentID,
+              ...collectionRef.documents[0].data
+            };
+
+            var indx = list.indexWhere((item) =>
+                (item['firstName'] == newData['firstName'] &&
+                    item['lastName'] == newData['lastName'] &&
+                    item['middleName'] == newData['middleName'] &&
+                    item['motherName'] == newData['motherName'] &&
+                    item['gender'] == newData['gender'] &&
+                    item['isMarried'] == newData['isMarried']));
+
+            if (indx != -1) {
+              list[indx] = {
+                ...item,
+                "id": collectionRef.documents[0].documentID,
+                ...collectionRef.documents[0].data,
+              };
+            }
+          }
+        }
+      }
+
       return list;
     } catch (err) {
       print('Error getting users brother sister relations');
@@ -230,11 +302,45 @@ class UserService {
         });
       }
 
-      if (list != null && list.length > 0) {
-        return list;
+      if (list.length > 0) {
+        for (var item in list) {
+          print('Innn, ${item.toString()}');
+          var collectionRef = (await _db
+              .collection('users')
+              .where('firstName', isEqualTo: item['firstName'])
+              .where('middleName', isEqualTo: item['middleName'])
+              .where('lastName', isEqualTo: item['lastName'])
+              .where('motherName', isEqualTo: item['motherName'])
+              .where('gender', isEqualTo: item['gender'])
+              .where('isMarried', isEqualTo: item['isMarried'])
+              .getDocuments());
+
+          if (collectionRef != null && collectionRef.documents.length > 0) {
+            var newData = {
+              "id": collectionRef.documents[0].documentID,
+              ...collectionRef.documents[0].data
+            };
+
+            var indx = list.indexWhere((item) =>
+                (item['firstName'] == newData['firstName'] &&
+                    item['lastName'] == newData['lastName'] &&
+                    item['middleName'] == newData['middleName'] &&
+                    item['motherName'] == newData['motherName'] &&
+                    item['gender'] == newData['gender'] &&
+                    item['isMarried'] == newData['isMarried']));
+
+            if (indx != -1) {
+              list[indx] = {
+                ...item,
+                "id": collectionRef.documents[0].documentID,
+                ...collectionRef.documents[0].data,
+              };
+            }
+          }
+        }
       }
 
-      return null;
+      return list;
     } catch (err) {
       print('Error getting users son daughter relations');
       print(err.toString());
@@ -268,7 +374,64 @@ class UserService {
         return null;
       }
 
-      return {"id": wifeRef.documentID, ...wifeRef.data};
+      var wifeData = {"id": wifeRef.documentID, ...wifeRef.data};
+
+      var collectionRef = (await _db
+          .collection('users')
+          .where('firstName', isEqualTo: wifeData['firstName'])
+          .where('middleName', isEqualTo: wifeData['middleName'])
+          .where('lastName', isEqualTo: wifeData['lastName'])
+          .where('motherName', isEqualTo: wifeData['motherName'])
+          .where('gender', isEqualTo: wifeData['gender'])
+          .where('isMarried', isEqualTo: wifeData['isMarried'])
+          .getDocuments());
+
+      if (collectionRef != null && collectionRef.documents.length > 0) {
+        wifeData = {
+          ...wifeData,
+          "id": collectionRef.documents[0].documentID,
+          ...collectionRef.documents[0].data,
+        };
+      }
+
+      return wifeData;
+    } catch (err) {
+      print(err.toString());
+      print('Error getting wife relations');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>> getHusbandRelation({String userId}) async {
+    try {
+      var husbandRef =
+          (await _db.document('users/$userId/addedMembers/Husband').get());
+
+      if (!husbandRef.exists) {
+        return null;
+      }
+
+      var husbandData = {"id": husbandRef.documentID, ...husbandRef.data};
+
+      var collectionRef = (await _db
+          .collection('users')
+          .where('firstName', isEqualTo: husbandData['firstName'])
+          .where('middleName', isEqualTo: husbandData['middleName'])
+          .where('lastName', isEqualTo: husbandData['lastName'])
+          .where('motherName', isEqualTo: husbandData['motherName'])
+          .where('gender', isEqualTo: husbandData['gender'])
+          .where('isMarried', isEqualTo: husbandData['isMarried'])
+          .getDocuments());
+
+      if (collectionRef != null && collectionRef.documents.length > 0) {
+        husbandData = {
+          ...husbandData,
+          "id": collectionRef.documents[0].documentID,
+          ...collectionRef.documents[0].data,
+        };
+      }
+
+      return husbandData;
     } catch (err) {
       print(err.toString());
       print('Error getting wife relations');

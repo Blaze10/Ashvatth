@@ -37,6 +37,9 @@ class _TreeState extends State<Tree> {
         _getCurrentUserId();
       });
     } else if (widget.userId != null) {
+      Future.delayed(Duration.zero, () {
+        _getUserData(widget.userId);
+      });
       setState(() {
         userId = widget.userId;
       });
@@ -76,6 +79,7 @@ class _TreeState extends State<Tree> {
                             return CircularProgressIndicator();
                           }
                           var list = snapshot.data;
+                          print(list.toString());
                           return (list != null && list.length > 0)
                               ? ListView.builder(
                                   shrinkWrap: true,
@@ -86,7 +90,40 @@ class _TreeState extends State<Tree> {
                                   },
                                   itemCount: list.length,
                                 )
-                              : Text('No Mother / Father relations found');
+                              : (currentUserData != null)
+                                  ? FutureBuilder(
+                                      future: RelationsService()
+                                          .generateMotherFatherRelation(
+                                              userData: currentUserData),
+                                      builder: (context, snap) {
+                                        if (snapshot.hasError) {
+                                          print(snap.error.toString());
+                                          return Text('');
+                                        }
+                                        if (snap.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return CircularProgressIndicator();
+                                        }
+                                        var newList = snap.data;
+                                        return newList != null &&
+                                                newList.length > 0
+                                            ? ListView.builder(
+                                                shrinkWrap: true,
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                itemBuilder: (ctx, i) {
+                                                  return _treeListItem(
+                                                      "$userId",
+                                                      newList[i],
+                                                      false);
+                                                },
+                                                itemCount: newList.length,
+                                              )
+                                            : Text(
+                                                'No Father / Mother Relations Found');
+                                      },
+                                    )
+                                  : Text('No Father / Mother Relations Found');
                         }),
                   ),
                 ),
@@ -132,7 +169,38 @@ class _TreeState extends State<Tree> {
                                   );
                                 },
                               )
-                            : Text('No Brother / Sister relations found');
+                            : (currentUserData != null)
+                                ? FutureBuilder(
+                                    future: RelationsService()
+                                        .generateSiblingRelations(
+                                            userData: currentUserData),
+                                    builder: (context, snap) {
+                                      if (snapshot.hasError) {
+                                        print(snap.error.toString());
+                                        return Text('');
+                                      }
+                                      if (snap.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return Center(
+                                            child: CircularProgressIndicator());
+                                      }
+                                      var newList = snap.data;
+                                      return newList != null &&
+                                              newList.length > 0
+                                          ? ListView.builder(
+                                              shrinkWrap: true,
+                                              scrollDirection: Axis.horizontal,
+                                              itemBuilder: (ctx, i) {
+                                                return _treeListItem("$userId",
+                                                    newList[i], false);
+                                              },
+                                              itemCount: newList.length,
+                                            )
+                                          : Text(
+                                              'No Brother / Sister Relations Found');
+                                    },
+                                  )
+                                : Text('No Brother / Sister Relations Found');
                       }),
                 ),
               ),
@@ -148,9 +216,13 @@ class _TreeState extends State<Tree> {
                     Flexible(
                         child: FutureBuilder(
                             future: (!widget.isNonUserTree &&
-                                    widget.nonUserData == null)
-                                ? UserService()
-                                    .getWifeRelation(userId: this.userId)
+                                    widget.nonUserData == null &&
+                                    currentUserData != null)
+                                ? currentUserData['gender'] == 'Male'
+                                    ? UserService()
+                                        .getWifeRelation(userId: this.userId)
+                                    : UserService()
+                                        .getHusbandRelation(userId: this.userId)
                                 : RelationsService().generateSpouseRelations(
                                     userData: widget.nonUserData),
                             builder: (context, snapshot) {
@@ -166,7 +238,28 @@ class _TreeState extends State<Tree> {
                               print(wifeData);
                               return (wifeData != null)
                                   ? _treeListItem("$userId", wifeData, false)
-                                  : Text('');
+                                  : (currentUserData != null)
+                                      ? FutureBuilder(
+                                          future: RelationsService()
+                                              .generateSpouseRelations(
+                                                  userData: currentUserData),
+                                          builder: (context, snap) {
+                                            if (snapshot.hasError) {
+                                              print(snap.error.toString());
+                                              return Text('');
+                                            }
+                                            if (snap.connectionState ==
+                                                ConnectionState.waiting) {
+                                              return CircularProgressIndicator();
+                                            }
+                                            var wifeData = snap.data;
+                                            return wifeData != null
+                                                ? _treeListItem(
+                                                    "$userId", wifeData, false)
+                                                : Text(' ');
+                                          },
+                                        )
+                                      : Text(' ');
                             })),
                     // himself
                     if (widget.selfTree || widget.isNonUserTree)
@@ -232,7 +325,41 @@ class _TreeState extends State<Tree> {
                                   },
                                   itemCount: list.length,
                                 )
-                              : Text(' ');
+                              : (currentUserData != null)
+                                  ? FutureBuilder(
+                                      future: RelationsService()
+                                          .generateSonDaughterRelations(
+                                              userData: currentUserData),
+                                      builder: (context, snap) {
+                                        if (snapshot.hasError) {
+                                          print(snap.error.toString());
+                                          return Text('');
+                                        }
+                                        if (snap.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return Center(
+                                              child:
+                                                  CircularProgressIndicator());
+                                        }
+                                        var newList = snap.data;
+                                        return newList != null &&
+                                                newList.length > 0
+                                            ? ListView.builder(
+                                                shrinkWrap: true,
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                itemBuilder: (ctx, i) {
+                                                  return _treeListItem(
+                                                      "$userId",
+                                                      newList[i],
+                                                      false);
+                                                },
+                                                itemCount: newList.length,
+                                              )
+                                            : Text(' ');
+                                      },
+                                    )
+                                  : Text(' ');
                         }),
                   ),
                 ),
@@ -257,6 +384,24 @@ class _TreeState extends State<Tree> {
       _hideShowLoader(true);
       var userId = (await FirebaseAuth.instance.currentUser()).uid;
 
+      var userRef = (await Firestore.instance.document('users/$userId').get());
+
+      setState(() {
+        this.userId = userId;
+        this.currentUserData = {"id": userId, ...userRef.data};
+      });
+
+      _hideShowLoader(false);
+    } catch (err) {
+      print(err.toString());
+      _hideShowLoader(false);
+    }
+  }
+
+  // get user data
+  _getUserData(String userId) async {
+    try {
+      _hideShowLoader(true);
       var userRef = (await Firestore.instance.document('users/$userId').get());
 
       setState(() {
