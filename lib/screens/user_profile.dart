@@ -1,3 +1,4 @@
+import 'package:Ashvatth/screens/user_home.dart';
 import 'package:Ashvatth/services/user_service.dart';
 import 'package:Ashvatth/widgets/tree.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -160,13 +161,27 @@ class _UserProfileState extends State<UserProfile> {
   // back button
   Widget _backbutton(String firstName, String lastName) {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      Padding(
-        padding: EdgeInsets.only(top: 0, left: 16),
-        child: IconButton(
-          icon: Icon(Icons.keyboard_backspace, size: 28),
-          onPressed: () => Navigator.of(context).pop(),
-          color: Color(0xff8d6e52),
-        ),
+      Row(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(top: 0, left: 16),
+            child: IconButton(
+              icon: Icon(Icons.keyboard_backspace, size: 28),
+              onPressed: () => Navigator.of(context).pop(),
+              color: Color(0xff8d6e52),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 0, left: 16),
+            child: IconButton(
+              icon: Icon(Icons.home, size: 28),
+              onPressed: () => Navigator.of(context).pushAndRemoveUntil(
+                  CupertinoPageRoute(builder: (context) => UserHomeScreen()),
+                  (Route<dynamic> route) => false),
+              color: Color(0xff8d6e52),
+            ),
+          ),
+        ],
       ),
       // IconButton(
       //   icon: Icon(FontAwesomeIcons.qrcode, size: 28),
