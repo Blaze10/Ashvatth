@@ -1024,57 +1024,56 @@ class RelationsService {
                 }
               }
             }
+          }
 
-            // check for daughters
-            if (daughterSnapshotRef != null &&
-                daughterSnapshotRef.documents != null &&
-                daughterSnapshotRef.documents.length > 0) {
-              var daughterCollectionList = daughterSnapshotRef.documents
-                  .map((doc) => {"id": doc.documentID, ...doc.data})
-                  .toList();
+          // check for daughters
+          if (daughterSnapshotRef != null &&
+              daughterSnapshotRef.documents != null &&
+              daughterSnapshotRef.documents.length > 0) {
+            var daughterCollectionList = daughterSnapshotRef.documents
+                .map((doc) => {"id": doc.documentID, ...doc.data})
+                .toList();
 
-              for (var el in daughterCollectionList) {
-                if (el['isMarried']) {
-                  if (el['fatherName']
-                              .toString()
-                              .indexOf(userData['middleName']) !=
-                          -1 &&
-                      el['oldSurname']
-                              .toString()
-                              .indexOf(userData['lastName']) !=
-                          -1) {
-                    var exists = relationList.any((item) =>
-                        (item['firstName'] == el['firstName'] &&
-                            item['lastName'] == el['lastName'] &&
-                            item['relation'] == 'Daughter'));
+            for (var el in daughterCollectionList) {
+              if (el['isMarried']) {
+                if (el['fatherName']
+                            .toString()
+                            .indexOf(userData['middleName']) !=
+                        -1 &&
+                    el['oldSurname'].toString().indexOf(userData['lastName']) !=
+                        -1) {
+                  var exists = relationList.any((item) =>
+                      (item['firstName'] == el['firstName'] &&
+                          item['lastName'] == el['lastName'] &&
+                          item['relation'] == 'Daughter'));
 
-                    if (!exists) {
-                      relationList.add({
-                        ...el,
-                        "relation": "Daughter",
-                        "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                      });
-                    }
+                  if (!exists) {
+                    relationList.add({
+                      ...el,
+                      "relation": "Daughter",
+                      "path": "users/${mem['id']}/addedMembers/${el['id']}",
+                    });
                   }
-                } else {
-                  if (el['middleName']
-                              .toString()
-                              .indexOf(userData['middleName']) !=
-                          -1 &&
-                      el['lastName'].toString().indexOf(userData['lastName']) !=
-                          -1) {
-                    var exists = relationList.any((item) =>
-                        (item['firstName'] == el['firstName'] &&
-                            item['lastName'] == el['lastName'] &&
-                            item['relation'] == 'Daughter'));
+                }
+              } else {
+                print('In called success');
+                if (el['middleName']
+                            .toString()
+                            .indexOf(userData['middleName']) !=
+                        -1 &&
+                    el['lastName'].toString().indexOf(userData['lastName']) !=
+                        -1) {
+                  var exists = relationList.any((item) =>
+                      (item['firstName'] == el['firstName'] &&
+                          item['lastName'] == el['lastName'] &&
+                          item['relation'] == 'Daughter'));
 
-                    if (!exists) {
-                      relationList.add({
-                        ...el,
-                        "relation": "Daughter",
-                        "path": "users/${mem['id']}/addedMembers/${el['id']}",
-                      });
-                    }
+                  if (!exists) {
+                    relationList.add({
+                      ...el,
+                      "relation": "Daughter",
+                      "path": "users/${mem['id']}/addedMembers/${el['id']}",
+                    });
                   }
                 }
               }

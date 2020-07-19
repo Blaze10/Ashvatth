@@ -162,7 +162,6 @@ class UserService {
 
       if (list.length > 0) {
         for (var item in list) {
-          print('Innn, ${item.toString()}');
           var collectionRef = (await _db
               .collection('users')
               .where('firstName', isEqualTo: item['firstName'])
@@ -192,6 +191,8 @@ class UserService {
                 ...item,
                 "id": collectionRef.documents[0].documentID,
                 ...collectionRef.documents[0].data,
+                "relation": item['relation'],
+                "path": "users/${collectionRef.documents[0].documentID}",
               };
             }
           }
@@ -235,7 +236,6 @@ class UserService {
 
       if (list.length > 0) {
         for (var item in list) {
-          print('Innn, ${item.toString()}');
           var collectionRef = (await _db
               .collection('users')
               .where('firstName', isEqualTo: item['firstName'])
@@ -265,6 +265,8 @@ class UserService {
                 ...item,
                 "id": collectionRef.documents[0].documentID,
                 ...collectionRef.documents[0].data,
+                "relation": item['relation'],
+                "path": "users/${collectionRef.documents[0].documentID}",
               };
             }
           }
@@ -282,7 +284,6 @@ class UserService {
   // get son and daugher
   Future<List<dynamic>> getSonAndDaughter({String userId}) async {
     try {
-      print('userId: $userId');
       List<dynamic> list = List<dynamic>();
 
       // get all sons
@@ -304,7 +305,6 @@ class UserService {
 
       if (list.length > 0) {
         for (var item in list) {
-          print('Innn, ${item.toString()}');
           var collectionRef = (await _db
               .collection('users')
               .where('firstName', isEqualTo: item['firstName'])
@@ -334,6 +334,8 @@ class UserService {
                 ...item,
                 "id": collectionRef.documents[0].documentID,
                 ...collectionRef.documents[0].data,
+                "relation": item['relation'],
+                "path": "users/${collectionRef.documents[0].documentID}",
               };
             }
           }
@@ -391,6 +393,8 @@ class UserService {
           ...wifeData,
           "id": collectionRef.documents[0].documentID,
           ...collectionRef.documents[0].data,
+          "relation": wifeData['relation'],
+          "path": "users/${collectionRef.documents[0].documentID}",
         };
       }
 
@@ -428,6 +432,8 @@ class UserService {
           ...husbandData,
           "id": collectionRef.documents[0].documentID,
           ...collectionRef.documents[0].data,
+          "relation": husbandData['relation'],
+          "path": "users/${collectionRef.documents[0].documentID}",
         };
       }
 

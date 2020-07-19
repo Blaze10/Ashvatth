@@ -12,6 +12,10 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.white,
       statusBarIconBrightness: Brightness.dark,
@@ -26,6 +30,12 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Ashvatth',
+        builder: (context, child) {
+          return MediaQuery(
+            child: child,
+            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+          );
+        },
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primaryColor: Color(0xff341C10),

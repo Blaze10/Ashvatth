@@ -79,7 +79,6 @@ class _TreeState extends State<Tree> {
                             return CircularProgressIndicator();
                           }
                           var list = snapshot.data;
-                          print(list.toString());
                           return (list != null && list.length > 0)
                               ? ListView.builder(
                                   shrinkWrap: true,
@@ -235,7 +234,6 @@ class _TreeState extends State<Tree> {
                                 return CircularProgressIndicator();
                               }
                               var wifeData = snapshot.data;
-                              print(wifeData);
                               return (wifeData != null)
                                   ? _treeListItem("$userId", wifeData, false)
                                   : (currentUserData != null)
@@ -444,49 +442,46 @@ class _TreeState extends State<Tree> {
             ),
           ),
           GestureDetector(
-            onTap: userData['id'] == userId
-                ? null
-                : (userData['relation'] != null && userId != null)
-                    ? () {
-                        print('asdasdas');
-                        if (userData['path'] == null) {
-                          print('asdasd');
-                          Navigator.of(context).push(
-                            CupertinoPageRoute(
-                              builder: (ctx) => UserProfile(
-                                relationPath:
-                                    'users/$userId/addedMembers/${userData['relation']}',
-                              ),
-                            ),
-                          );
-                        } else {
-                          print('${userData['path']}');
-                          Navigator.of(context).push(
-                            CupertinoPageRoute(
-                              builder: (ctx) => UserProfile(
-                                relationPath: userData['path'],
-                              ),
-                            ),
-                          );
-                        }
-                      }
-                    : () {
-                        if (userData['path'] == null) {
-                          // Navigator.of(context).push(
-                          //   CupertinoPageRoute(
-                          //     builder: (ctx) => UserProfile(),
-                          //   ),
-                          // );
-                        } else {
-                          Navigator.of(context).push(
-                            CupertinoPageRoute(
-                              builder: (ctx) => UserProfile(
-                                relationPath: userData['path'],
-                              ),
-                            ),
-                          );
-                        }
-                      },
+            onTap: (userData['relation'] != null && userId != null)
+                ? () {
+                    print('asdasdas');
+                    if (userData['path'] == null) {
+                      print('asdasd');
+                      Navigator.of(context).pushReplacement(
+                        CupertinoPageRoute(
+                          builder: (ctx) => UserProfile(
+                            relationPath:
+                                'users/$userId/addedMembers/${userData['relation']}',
+                          ),
+                        ),
+                      );
+                    } else {
+                      Navigator.of(context).pushReplacement(
+                        CupertinoPageRoute(
+                          builder: (ctx) => UserProfile(
+                            relationPath: userData['path'],
+                          ),
+                        ),
+                      );
+                    }
+                  }
+                : () {
+                    if (userData['path'] == null) {
+                      // Navigator.of(context).push(
+                      //   CupertinoPageRoute(
+                      //     builder: (ctx) => UserProfile(),
+                      //   ),
+                      // );
+                    } else {
+                      Navigator.of(context).pushReplacement(
+                        CupertinoPageRoute(
+                          builder: (ctx) => UserProfile(
+                            relationPath: userData['path'],
+                          ),
+                        ),
+                      );
+                    }
+                  },
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
