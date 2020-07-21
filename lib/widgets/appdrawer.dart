@@ -18,17 +18,17 @@ class AppDrawerWidger extends StatelessWidget {
         // Important: Remove any padding from the ListView.
         padding: EdgeInsets.zero,
         children: <Widget>[
-          DrawerHeader(
-            margin: const EdgeInsets.all(8),
-            child: Text(''),
+          Container(
             padding: const EdgeInsets.all(8),
+            height: MediaQuery.of(context).size.height * 0.22,
+            width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
-              // color: Theme.of(context).primaryColor,
-              image: DecorationImage(
-                image: AssetImage('assets/logo.png'),
-              ),
+              color: Theme.of(context).primaryColor,
             ),
+            // height: MediaQuery.of(context).size.height * 0.2,
+            child: Image.asset('assets/white-logo.png'),
           ),
+          SizedBox(height: 8),
           ListTile(
             leading: Icon(
               Icons.account_circle,
