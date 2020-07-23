@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:marquee/marquee.dart';
 import 'package:string_validator/string_validator.dart';
+import './family_members.dart';
 
 class UserHomeScreen extends StatefulWidget {
   @override
@@ -164,6 +165,13 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                                 labelName: 'Family\nMembers',
                                 showRight: true,
                                 showIcon: Icons.people,
+                                onTapFunction: () {
+                                  Navigator.of(context).push(
+                                    CupertinoPageRoute(
+                                        builder: (ctx) =>
+                                            FamilyMembersScreen()),
+                                  );
+                                },
                               ),
                               _menuItem(
                                 labelName: 'Family\nSearch',
@@ -473,7 +481,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 showIcon,
                 size: 30,
                 color: labelName != ''
-                    ? Theme.of(context).primaryColor
+                    ? Theme.of(context).accentColor
                     : Theme.of(context).scaffoldBackgroundColor,
               ),
               SizedBox(height: 8),

@@ -478,4 +478,52 @@ class UserService {
       return null;
     }
   }
+
+  // get all members from the database
+  Future<List<Map<String, dynamic>>> getAllMembers() async {
+    try {
+      List<Map<String, dynamic>> userList = [];
+      List<Map<String, dynamic>> membersList = [];
+
+      // get all users
+      var userRef = (await _db.collection('users').getDocuments());
+      var refList = userRef.documents
+          .map((e) => {"id": e.documentID, ...e.data})
+          .toList();
+      userList = [...refList];
+
+      if (userList != null && userList.length > 0) {
+        for (var user in userList) {
+          var addedMembersRef = (await _db
+              .collection('users/${user['id']}/addedMembers')
+              .getDocuments());
+
+          if (addedMembersRef != null &&
+              addedMembersRef.documents != null &&
+              addedMembersRef.documents.length > 0) {
+            var addedMembersList = addedMembersRef.documents
+                .map((e) => {"id": e.documentID, ...e.data})
+                .toList();
+
+            for (var mem in addedMembersList) {
+              var exists = userList.any((u) =>
+                  (u['firstName'] == mem['firstName'] &&
+                      u['middleName'] == mem['middleName'] &&
+                      u['lastName'] == mem['lastName'] &&
+                      u['motherName'] == mem['motherName']));
+
+              if (!exists) {
+                membersList.add(mem);
+              }
+            }
+          }
+        }
+      }
+      userList = [...userList, ...membersList];
+      return userList;
+    } catch (err) {
+      print(err.toString());
+      return null;
+    }
+  }
 }
