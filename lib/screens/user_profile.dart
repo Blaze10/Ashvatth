@@ -267,15 +267,24 @@ class _UserProfileState extends State<UserProfile> {
                 border:
                     Border.all(color: Theme.of(context).primaryColor, width: 3),
               ),
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.2,
-                width: MediaQuery.of(context).size.height * 0.2,
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      image: CachedNetworkImageProvider(imageUrl),
-                      fit: BoxFit.fill,
-                    )),
+              child: GestureDetector(
+                onTap: () {
+                  return showDialog(
+                      context: context,
+                      builder: (ctx) {
+                        return _zoomProfileImage(imageUrl);
+                      });
+                },
+                child: Container(
+                  height: MediaQuery.of(context).size.height * 0.2,
+                  width: MediaQuery.of(context).size.height * 0.2,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: CachedNetworkImageProvider(imageUrl),
+                        fit: BoxFit.fill,
+                      )),
+                ),
               ),
             ),
             SizedBox(height: 8),
@@ -1289,5 +1298,29 @@ class _UserProfileState extends State<UserProfile> {
       }
     }
     return age;
+  }
+
+  _zoomProfileImage(String imageUrl) {
+    return AlertDialog(
+        content: CachedNetworkImage(
+      imageUrl: imageUrl,
+      height: 300,
+      width: 300,
+      fit: BoxFit.fill,
+      placeholder: (context, url) {
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+      errorWidget: (context, url, error) {
+        return Center(
+          child: Icon(
+            Icons.error,
+            size: 52,
+            color: Theme.of(context).errorColor,
+          ),
+        );
+      },
+    ));
   }
 }

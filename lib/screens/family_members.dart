@@ -1,4 +1,6 @@
+import 'package:Ashvatth/screens/user_profile.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../services/user_service.dart';
 
@@ -54,54 +56,55 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
     return SafeArea(
       child: Scaffold(
         bottomNavigationBar: BottomAppBar(
-            color: Theme.of(context).accentColor,
+            // color: Color(0xfff0cc8d),
             child: SizedBox(
-              height: 55,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: alphabetsList.length,
-                  padding: const EdgeInsets.only(left: 28),
-                  itemBuilder: (ctx, i) {
-                    return GestureDetector(
-                      onTap: () {
-                        _soryByLetter(alphabetsList[i]);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 20.0),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 8,
-                            horizontal: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            color: selectedString == alphabetsList[i]
-                                ? Theme.of(context).primaryColor
-                                : Colors.white54,
-                            border: Border.all(
-                              color: selectedString == alphabetsList[i]
-                                  ? Colors.white
-                                  : Theme.of(context).primaryColor,
-                            ),
-                          ),
-                          child: Text(
-                            alphabetsList[i].toUpperCase(),
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: selectedString == alphabetsList[i]
-                                  ? Colors.white
-                                  : Theme.of(context).primaryColor,
-                              fontSize: 16,
-                            ),
-                          ),
+          height: 55,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: alphabetsList.length,
+              padding: const EdgeInsets.only(left: 28),
+              itemBuilder: (ctx, i) {
+                return GestureDetector(
+                  onTap: () {
+                    _soryByLetter(alphabetsList[i]);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 20.0),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: selectedString == alphabetsList[i]
+                            ? Theme.of(context).primaryColor
+                            : Theme.of(context).accentColor.withOpacity(0.2),
+                        border: Border.all(
+                          color: selectedString == alphabetsList[i]
+                              ? Colors.white
+                              : Theme.of(context).primaryColor,
                         ),
                       ),
-                    );
-                  },
-                ),
-              ),
-            )),
+                      child: Text(
+                        alphabetsList[i].toUpperCase(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: selectedString == alphabetsList[i]
+                              ? Colors.white
+                              : Theme.of(context).primaryColor,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        )),
         appBar: AppBar(
           title: Text('Family Members'),
         ),
@@ -119,6 +122,9 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
                     ),
                   ),
                   Switch(
+                    inactiveThumbColor: Theme.of(context).primaryColor,
+                    inactiveTrackColor:
+                        Theme.of(context).primaryColor.withOpacity(0.6),
                     value: soryByName,
                     onChanged: _onSortChanged,
                     activeColor: Theme.of(context).accentColor,
@@ -139,11 +145,17 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
                   itemBuilder: (ctx, i) {
                     return Card(
                       key: ValueKey(filteredList[i]['id']),
+                      elevation: 12,
                       margin: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 5),
+                          horizontal: 12, vertical: 5),
                       child: ListTile(
                         contentPadding: const EdgeInsets.all(5),
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.of(context).push(CupertinoPageRoute(
+                            builder: (ctx) => UserProfile(
+                                relationPath: filteredList[i]['path']),
+                          ));
+                        },
                         leading: CircleAvatar(
                           minRadius: 24,
                           maxRadius: 24,
@@ -153,13 +165,14 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
                         ),
                         title: Text(!soryByName
                             ? '${filteredList[i]['firstName']} ${filteredList[i]['middleName']} ${filteredList[i]['lastName']}'
-                            : '${filteredList[i]['lastName']} ${filteredList[i]['middleName']} ${filteredList[i]['firstName']}'),
+                            : '${filteredList[i]['lastName']} ${filteredList[i]['firstName']} ${filteredList[i]['middleName']}'),
                         subtitle: (filteredList[i]['isMarried'] &&
                                 filteredList[i]['gender'] == 'Female')
                             ? Text(
-                                '${filteredList[i]['firstName']} ${filteredList[i]['fatherName']} ${filteredList[i]['motherName']} ${filteredList[i]['oldSurname']}',
+                                '(${(filteredList[i]['oldName'] != null && filteredList[i]['oldName'] != '') ? filteredList[i]['oldName'] : filteredList[i]['firstName']} ${filteredList[i]['fatherName']} ${filteredList[i]['motherName']} ${filteredList[i]['oldSurname']})',
                                 style: TextStyle(
-                                  color: Theme.of(context).accentColor,
+                                  color: Colors.black,
+                                  fontSize: 15,
                                 ),
                               )
                             : Text(''),

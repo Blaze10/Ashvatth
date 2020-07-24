@@ -488,7 +488,8 @@ class UserService {
       // get all users
       var userRef = (await _db.collection('users').getDocuments());
       var refList = userRef.documents
-          .map((e) => {"id": e.documentID, ...e.data})
+          .map((e) =>
+              {"id": e.documentID, ...e.data, "path": "users/${e.documentID}"})
           .toList();
       userList = [...refList];
 
@@ -502,7 +503,11 @@ class UserService {
               addedMembersRef.documents != null &&
               addedMembersRef.documents.length > 0) {
             var addedMembersList = addedMembersRef.documents
-                .map((e) => {"id": e.documentID, ...e.data})
+                .map((e) => {
+                      "id": e.documentID,
+                      ...e.data,
+                      "path": "users/${user['id']}/addedMembers/${e.documentID}"
+                    })
                 .toList();
 
             for (var mem in addedMembersList) {

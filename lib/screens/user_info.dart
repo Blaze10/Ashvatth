@@ -63,6 +63,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
   var fatherNameController = TextEditingController();
   var motherNameController = TextEditingController();
   var oldSurnameController = TextEditingController();
+  var oldNameController = TextEditingController();
   var birthDateController = TextEditingController();
   var birthPlaceController = TextEditingController();
   var notesController = TextEditingController();
@@ -339,6 +340,17 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
                 child: InputFormField(
                   labelText: 'Father\'s Name',
                   controller: fatherNameController,
+                  isInlineBorder: true,
+                  isRequired: true,
+                ),
+              ),
+            if ((widget.selfEdit && gender == Gender.female && isMarried) ||
+                (gender == Gender.female && isMarried))
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: InputFormField(
+                  labelText: 'Old Name',
+                  controller: oldNameController,
                   isInlineBorder: true,
                   isRequired: true,
                 ),
@@ -917,6 +929,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
           'fatherName': fatherNameController.text.trim() ?? '',
           'motherName': motherNameController.text.trim() ?? '',
           'oldSurname': oldSurnameController.text.trim() ?? '',
+          'oldName': oldNameController.text.trim() ?? '',
           'dateOfBirth': birthDate ?? '',
           'birthPlace': birthPlaceController.text.trim() ?? '',
           'notes': notesController.text.trim() ?? '',
@@ -1308,6 +1321,7 @@ class _UserInfoFormPageState extends State<UserInfoFormPage>
             fatherNameController.text = userData['fatherName'] ?? '';
             motherNameController.text = userData['motherName'] ?? '';
             oldSurnameController.text = userData['oldSurname'] ?? '';
+            oldNameController.text = userData['oldName'] ?? '';
             birthDateController.text = (userData['dateOfBirth'] != null &&
                     userData['dateOfBirth'] != '')
                 ? '${df.format(userData['dateOfBirth'].toDate()).toString()}'
