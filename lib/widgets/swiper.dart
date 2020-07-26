@@ -21,7 +21,7 @@ class ImageSlider extends StatelessWidget {
           border: Border(
               bottom: BorderSide(
         color: Theme.of(context).primaryColor,
-        width: 2,
+        width: 5,
       ))),
       height: MediaQuery.of(context).size.height * 0.27,
       width: MediaQuery.of(context).size.width,

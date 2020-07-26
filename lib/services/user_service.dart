@@ -531,4 +531,53 @@ class UserService {
       return null;
     }
   }
+
+  // get dashboard cards data
+  Future<Map<String, int>> getDashboardStats() async {
+    try {
+      var registeredUsersCount = 0;
+      var tempUserList = [];
+      List<String> familyList = [];
+
+      var userRef = (await _db.collection('users').getDocuments());
+      if (userRef != null && userRef.documents.length > 0) {
+        registeredUsersCount = userRef.documents.length;
+        var list = userRef.documents.map((e) => e.data).toList();
+        tempUserList = userRef.documents
+            .map((e) => {"id": e.documentID, ...e.data})
+            .toList();
+        for (var user in list) {
+          if (!familyList
+              .any((el) => el.toLowerCase().indexOf(user['lastName']) != -1)) {
+            familyList.add(user['lastName']);
+          }
+        }
+      }
+
+      for (var user in tempUserList) {
+        var memberRef = (await _db
+            .collection('users/${user['id']}/addedMembers')
+            .getDocuments());
+
+        if (memberRef != null && memberRef.documents.length > 0) {
+          var list = memberRef.documents.map((e) => e.data).toList();
+          for (var user in list) {
+            if (!(familyList.any((el) =>
+                el.toLowerCase() ==
+                user['lastName'].toString().toLowerCase()))) {
+              familyList.add(user['lastName']);
+            }
+          }
+        }
+      }
+
+      return {
+        "registeredCount": registeredUsersCount,
+        "familyCount": familyList.toSet().length
+      };
+    } catch (err) {
+      print(err.toString());
+      return null;
+    }
+  }
 }

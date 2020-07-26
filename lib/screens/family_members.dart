@@ -5,6 +5,22 @@ import 'package:flutter/material.dart';
 import '../services/user_service.dart';
 
 class FamilyMembersScreen extends StatefulWidget {
+  final String searchName;
+  final String searchCity;
+  final String searchBirthPlace;
+  final String searchBoodGroup;
+  final String searchSpecialization;
+  final bool isSearch;
+
+  FamilyMembersScreen({
+    this.searchName,
+    this.searchCity,
+    this.searchBirthPlace,
+    this.searchBoodGroup,
+    this.searchSpecialization,
+    this.isSearch = false,
+  });
+
   @override
   _FamilyMembersScreenState createState() => _FamilyMembersScreenState();
 }
@@ -148,34 +164,44 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
                       elevation: 12,
                       margin: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 5),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.all(5),
-                        onTap: () {
-                          Navigator.of(context).push(CupertinoPageRoute(
-                            builder: (ctx) => UserProfile(
-                                relationPath: filteredList[i]['path']),
-                          ));
-                        },
-                        leading: CircleAvatar(
-                          minRadius: 24,
-                          maxRadius: 24,
-                          backgroundColor: Theme.of(context).accentColor,
-                          backgroundImage: CachedNetworkImageProvider(
-                              filteredList[i]['profileImageUrl']),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            left: BorderSide(
+                              color: Theme.of(context).accentColor,
+                              width: 5,
+                            ),
+                          ),
                         ),
-                        title: Text(!soryByName
-                            ? '${filteredList[i]['firstName']} ${filteredList[i]['middleName']} ${filteredList[i]['lastName']}'
-                            : '${filteredList[i]['lastName']} ${filteredList[i]['firstName']} ${filteredList[i]['middleName']}'),
-                        subtitle: (filteredList[i]['isMarried'] &&
-                                filteredList[i]['gender'] == 'Female')
-                            ? Text(
-                                '(${(filteredList[i]['oldName'] != null && filteredList[i]['oldName'] != '') ? filteredList[i]['oldName'] : filteredList[i]['firstName']} ${filteredList[i]['fatherName']} ${filteredList[i]['motherName']} ${filteredList[i]['oldSurname']})',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 15,
-                                ),
-                              )
-                            : Text(''),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(5),
+                          onTap: () {
+                            Navigator.of(context).push(CupertinoPageRoute(
+                              builder: (ctx) => UserProfile(
+                                  relationPath: filteredList[i]['path']),
+                            ));
+                          },
+                          leading: CircleAvatar(
+                            minRadius: 24,
+                            maxRadius: 24,
+                            backgroundColor: Theme.of(context).accentColor,
+                            backgroundImage: CachedNetworkImageProvider(
+                                filteredList[i]['profileImageUrl']),
+                          ),
+                          title: Text(!soryByName
+                              ? '${filteredList[i]['firstName']} ${filteredList[i]['middleName']} ${filteredList[i]['lastName']}'
+                              : '${filteredList[i]['lastName']} ${filteredList[i]['firstName']} ${filteredList[i]['middleName']}'),
+                          subtitle: (filteredList[i]['isMarried'] &&
+                                  filteredList[i]['gender'] == 'Female')
+                              ? Text(
+                                  '(${(filteredList[i]['oldName'] != null && filteredList[i]['oldName'] != '') ? filteredList[i]['oldName'] : filteredList[i]['firstName']} ${filteredList[i]['fatherName']} ${filteredList[i]['motherName']} ${filteredList[i]['oldSurname']})',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 15,
+                                  ),
+                                )
+                              : Text(''),
+                        ),
                       ),
                     );
                   },
@@ -226,6 +252,95 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
     Future.delayed(Duration.zero, () async {
       try {
         var list = await userService.getAllMembers();
+
+        if (widget.isSearch) {
+          if (widget.searchName != null && widget.searchName != '') {
+            list = list.where((user) {
+              return ((user['firstName']
+                          .toString()
+                          .toLowerCase()
+                          .indexOf(widget.searchName) !=
+                      -1) ||
+                  (user['middleName']
+                          .toString()
+                          .toLowerCase()
+                          .indexOf(widget.searchName) !=
+                      -1) ||
+                  (user['lastName']
+                          .toString()
+                          .toLowerCase()
+                          .indexOf(widget.searchName) !=
+                      -1) ||
+                  (user['oldSurname']
+                          .toString()
+                          .toLowerCase()
+                          .indexOf(widget.searchName) !=
+                      -1));
+            }).toList();
+          }
+
+          // city
+          if (widget.searchCity != null && widget.searchCity != '') {
+            list = list.where((user) {
+              return ((user['permanentAddress']
+                          .toString()
+                          .toLowerCase()
+                          .indexOf(widget.searchCity) !=
+                      -1) ||
+                  (user['currentAddress']
+                          .toString()
+                          .toLowerCase()
+                          .indexOf(widget.searchCity) !=
+                      -1));
+            }).toList();
+          }
+
+          // Birth Place
+          if (widget.searchBirthPlace != null &&
+              widget.searchBirthPlace != '') {
+            list = list.where((user) {
+              return ((user['birthPlace']
+                      .toString()
+                      .toLowerCase()
+                      .indexOf(widget.searchBirthPlace) !=
+                  -1));
+            }).toList();
+          }
+
+          // Blood group
+          if (widget.searchBoodGroup != null && widget.searchBoodGroup != '') {
+            list = list.where((user) {
+              return ((user['bloodGroup']
+                      .toString()
+                      .toLowerCase()
+                      .indexOf(widget.searchBoodGroup) !=
+                  -1));
+            }).toList();
+          }
+
+          // Specialization
+          if (widget.searchSpecialization != null &&
+              widget.searchSpecialization != '') {
+            list = list.where((user) {
+              return ((user['qualification']
+                          .toString()
+                          .toLowerCase()
+                          .indexOf(widget.searchSpecialization) !=
+                      -1) ||
+                  (user['serviceLine']
+                          .toString()
+                          .toLowerCase()
+                          .indexOf(widget.searchSpecialization) !=
+                      -1) ||
+                  (user['notes']
+                          .toString()
+                          .toLowerCase()
+                          .indexOf(widget.searchSpecialization) !=
+                      -1));
+            }).toList();
+          }
+        }
+
         setState(() {
           userList = list;
           filteredList = userList;

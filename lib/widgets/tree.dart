@@ -212,80 +212,75 @@ class _TreeState extends State<Tree> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     // wife
-                    Flexible(
-                        child: FutureBuilder(
-                            future: (!widget.isNonUserTree &&
-                                    widget.nonUserData == null &&
-                                    currentUserData != null)
-                                ? currentUserData['gender'] == 'Male'
-                                    ? UserService()
-                                        .getWifeRelation(userId: this.userId)
-                                    : UserService()
-                                        .getHusbandRelation(userId: this.userId)
-                                : RelationsService().generateSpouseRelations(
-                                    userData: widget.nonUserData),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasError) {
-                                print(snapshot.error.toString());
-                                return Text('No Wife relations found');
-                              }
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return CircularProgressIndicator();
-                              }
-                              var wifeData = snapshot.data;
-                              return (wifeData != null)
-                                  ? _treeListItem("$userId", wifeData, false)
-                                  : (currentUserData != null)
-                                      ? FutureBuilder(
-                                          future: RelationsService()
-                                              .generateSpouseRelations(
-                                                  userData: currentUserData),
-                                          builder: (context, snap) {
-                                            if (snapshot.hasError) {
-                                              print(snap.error.toString());
-                                              return Text('');
-                                            }
-                                            if (snap.connectionState ==
-                                                ConnectionState.waiting) {
-                                              return CircularProgressIndicator();
-                                            }
-                                            var wifeData = snap.data;
-                                            return wifeData != null
-                                                ? _treeListItem(
-                                                    "$userId", wifeData, false)
-                                                : Text(' ');
-                                          },
-                                        )
-                                      : Text(' ');
-                            })),
+                    FutureBuilder(
+                        future: (!widget.isNonUserTree &&
+                                widget.nonUserData == null &&
+                                currentUserData != null)
+                            ? currentUserData['gender'] == 'Male'
+                                ? UserService()
+                                    .getWifeRelation(userId: this.userId)
+                                : UserService()
+                                    .getHusbandRelation(userId: this.userId)
+                            : RelationsService().generateSpouseRelations(
+                                userData: widget.nonUserData),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            print(snapshot.error.toString());
+                            return Text('No Wife relations found');
+                          }
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return CircularProgressIndicator();
+                          }
+                          var wifeData = snapshot.data;
+                          return (wifeData != null)
+                              ? _treeListItem("$userId", wifeData, false)
+                              : (currentUserData != null)
+                                  ? FutureBuilder(
+                                      future: RelationsService()
+                                          .generateSpouseRelations(
+                                              userData: currentUserData),
+                                      builder: (context, snap) {
+                                        if (snapshot.hasError) {
+                                          print(snap.error.toString());
+                                          return Text('');
+                                        }
+                                        if (snap.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return CircularProgressIndicator();
+                                        }
+                                        var wifeData = snap.data;
+                                        return wifeData != null
+                                            ? _treeListItem(
+                                                "$userId", wifeData, false)
+                                            : Text(' ');
+                                      },
+                                    )
+                                  : Text(' ');
+                        }),
                     // himself
                     if (widget.selfTree || widget.isNonUserTree)
                       (currentUserData != null || widget.nonUserData != null)
-                          ? Flexible(
-                              child: _treeListItem(userId,
-                                  currentUserData ?? widget.nonUserData, true))
+                          ? _treeListItem(userId,
+                              currentUserData ?? widget.nonUserData, true)
                           : Text(''),
                     if (!widget.selfTree)
-                      Flexible(
-                        child: FutureBuilder(
-                            future: UserService().getUserById(userId: userId),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasError) {
-                                print(snapshot.error.toString());
-                                return Text(' ');
-                              }
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Center(
-                                    child: CircularProgressIndicator());
-                              }
-                              var userData = snapshot.data;
-                              return (userData != null)
-                                  ? _treeListItem(userId, userData, true)
-                                  : Text(' ');
-                            }),
-                      ),
+                      FutureBuilder(
+                          future: UserService().getUserById(userId: userId),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasError) {
+                              print(snapshot.error.toString());
+                              return Text(' ');
+                            }
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            }
+                            var userData = snapshot.data;
+                            return (userData != null)
+                                ? _treeListItem(userId, userData, true)
+                                : Text(' ');
+                          }),
                   ],
                 ),
               ),

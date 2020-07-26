@@ -1,5 +1,6 @@
 import 'package:Ashvatth/services/user_service.dart';
 import 'package:Ashvatth/widgets/appdrawer.dart';
+import 'package:Ashvatth/widgets/dashboard_card.dart';
 import 'package:Ashvatth/widgets/input_form_field.dart';
 import 'package:Ashvatth/widgets/swiper.dart';
 import 'package:Ashvatth/widgets/tree.dart';
@@ -12,6 +13,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:marquee/marquee.dart';
 import 'package:string_validator/string_validator.dart';
 import './family_members.dart';
+import 'family_search.dart';
 
 class UserHomeScreen extends StatefulWidget {
   @override
@@ -20,15 +22,23 @@ class UserHomeScreen extends StatefulWidget {
 
 class _UserHomeScreenState extends State<UserHomeScreen> {
   final userDataFuture = UserService().getCurrentUserData();
+  final userService = UserService();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _usernameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   var showLoader = false;
+  final List colorArray = [
+    Colors.red,
+    Colors.green,
+    Colors.blue,
+  ];
+  int memberCount = 0;
 
   @override
   void initState() {
     super.initState();
     _setUserName();
+    _getMemberCount();
   }
 
   @override
@@ -135,6 +145,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                   ),
                 ),
                 ImageSlider(),
+                _dashboardStats(),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
@@ -174,39 +185,44 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                                 },
                               ),
                               _menuItem(
-                                labelName: 'Family\nSearch',
-                                showIcon: Icons.search,
-                              ),
+                                  labelName: 'Family\nSearch',
+                                  showIcon: Icons.search,
+                                  onTapFunction: () {
+                                    Navigator.of(context).push(
+                                      CupertinoPageRoute(
+                                          builder: (ctx) => FamilySearch()),
+                                    );
+                                  }),
                             ],
                           ),
                         ),
-                        Container(
-                          decoration: BoxDecoration(
-                              border: Border(
-                            bottom:
-                                BorderSide(color: Colors.grey.withOpacity(.3)),
-                          )),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              _menuItem(
-                                showRight: true,
-                                labelName: 'Business\nCommunity',
-                                showIcon: Icons.business,
-                              ),
-                              _menuItem(
-                                showRight: true,
-                                labelName: 'Social\nCommunity',
-                                showIcon: FontAwesomeIcons.facebook,
-                              ),
-                              _menuItem(
-                                labelName: 'Medical\nHistory',
-                                showIcon: Icons.local_hospital,
-                              ),
-                            ],
-                          ),
-                        ),
+                        // Container(
+                        //   decoration: BoxDecoration(
+                        //       border: Border(
+                        //     bottom:
+                        //         BorderSide(color: Colors.grey.withOpacity(.3)),
+                        //   )),
+                        //   child: Row(
+                        //     mainAxisSize: MainAxisSize.max,
+                        //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        //     children: <Widget>[
+                        //       _menuItem(
+                        //         showRight: true,
+                        //         labelName: 'Business\nCommunity',
+                        //         showIcon: Icons.business,
+                        //       ),
+                        //       _menuItem(
+                        //         showRight: true,
+                        //         labelName: 'Social\nCommunity',
+                        //         showIcon: FontAwesomeIcons.facebook,
+                        //       ),
+                        //       _menuItem(
+                        //         labelName: 'Medical\nHistory',
+                        //         showIcon: Icons.local_hospital,
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
@@ -498,5 +514,68 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
         ),
       ),
     );
+  }
+
+  Widget _dashboardStats() {
+    return Padding(
+      padding: const EdgeInsets.all(0.0),
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.12,
+        width: MediaQuery.of(context).size.width,
+        child: FutureBuilder(
+            future: userService.getDashboardStats(),
+            builder: (context, snap) {
+              if (snap.hasError) {
+                return Center(
+                  child: Text(''),
+                );
+              }
+              if (snap.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              }
+              var data = snap.data;
+              var list = [
+                {
+                  "title": "Family Members",
+                  "count": memberCount,
+                  "icon": Icons.person
+                },
+                {
+                  "title": "Registered Members",
+                  "count": data['registeredCount'],
+                  "icon": Icons.verified_user
+                },
+                {
+                  "title": "Families",
+                  "count": data['familyCount'],
+                  "icon": FontAwesomeIcons.tree
+                },
+              ];
+              return ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(left: 16),
+                itemCount: list.length,
+                itemBuilder: (ctx, i) {
+                  return DashboardCard(
+                    icon: list[i]['icon'],
+                    numberText: list[i]['count'].toString(),
+                    titleText: list[i]['title'],
+                    color: colorArray[i],
+                  );
+                },
+              );
+            }),
+      ),
+    );
+  }
+
+  _getMemberCount() {
+    Future.delayed(Duration.zero, () async {
+      var list = await userService.getAllMembers();
+      print(' qweqwe ${list.length.toString()}');
+      setState(() {
+        memberCount = list.length;
+      });
+    });
   }
 }
